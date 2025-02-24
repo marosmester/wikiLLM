@@ -2,7 +2,6 @@ import re
 
 text = "Elizabeth (far left) on the balcony of Buckingham Palace with her family and Winston Churchill, 8 May 1945"
 text += " and her 3046 soldiers born in 982"
-print(text)
 
 # patterns
 p1 = r"\d{4}"                       # 4 digit number
