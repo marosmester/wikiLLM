@@ -247,5 +247,6 @@ if __name__ == "__main__":
     else:
         app = AnnotationTool(themename="darkly")
         
+    print("App is running")
     app.mainloop()
     
