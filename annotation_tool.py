@@ -30,12 +30,15 @@ class AnnotationTool(tb.Window):
                            'Image_creation_frame_plus_pixel_pos': {}}
         
         # Class attributes initialization
+        self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
+        self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='previousRecord.png')
         self.image = None
         self.caption = None
         self.name = None
         self.birth = None
         self.link = None
         self.scaling_factor = None
+        self.pixel_position = (None, None)
                 
         # Create a frame
         self.frames["Image"] = tb.Frame(self, padding=10)
@@ -57,7 +60,7 @@ class AnnotationTool(tb.Window):
         #self.labels["Person_info_frame"]["Birth"] = tb.Label(self.frames["Person_info_frame"]["Birth"], font=self.info_font)
         self.labels["Wiki_link"] = tb.Label(self.frames["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
         self.labels["Image_creation_frame_plus_pixel_pos"]["pm"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text="±", font=self.info_font)
-        self.labels["Image_creation_frame_plus_pixel_pos"]["px"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], text="Click on the image", font=self.info_font)
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], text="Click on the image", font=self.info_font, width=15)
         
         # Create a text widget
         self.texts["Caption"] = ScrolledText(self.frames["Caption"], font=self.info_font, height=5, width=30, wrap= "word", autohide = True)
@@ -72,6 +75,10 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Person_info_frame"]["Birth"]["Year"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= [str(i) for i in range(101)],width=2)
+        
+        #Create a button widget
+        self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecord , padding=10, width=100, takefocus=False)
+        self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
         
         self.defaultScreenBuild()
         
@@ -183,6 +190,35 @@ class AnnotationTool(tb.Window):
         """
         print(link)
         webbrowser.open(link)
+        
+    def printPixelPosition(self, event) -> None:
+        """
+        Prints the pixel position of the mouse click on the image.
+        Args:
+            event (tk.Event): The event object.
+        Returns:
+            None
+        """
+        x, y = event.x, event.y
+        self.pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Pixel coordinates (x,y) are: ({x}, {y})")
+    
+    def nextRecord(self) -> None:
+        """
+        Displays the next record in the database.
+        Returns:
+            None
+        """
+        pass
+    
+    def previousRecord(self) -> None:
+        """
+        Displays the previous record in the database.
+        Returns:
+            None
+        """
+        pass
+        
 
     def defaultScreenBuild(self):
         
@@ -203,8 +239,8 @@ class AnnotationTool(tb.Window):
         self.frames["Caption"].grid(row=0, column=1, sticky="ew", padx=27, pady=20)
         self.frames["Wiki_link"].grid(row=1, column=1, sticky="ew", padx=27, pady=10)
         self.frames["Person_info_frame"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=3, column=1, sticky="ew", padx=27, pady=20)
-        self.frames["Control_panel"].grid(row=4, column=1, sticky="nsew", padx=27, pady=20)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=3, column=1, sticky="ew", padx=10, pady=20)
+        self.frames["Control_panel"].grid(row=4, column=1, sticky="ew", padx=27, pady=20, ipady=20)
         
         
         # Update and place the image and caption
@@ -213,6 +249,7 @@ class AnnotationTool(tb.Window):
         
         self.labels["Image"].config(image=self.image)
         self.labels["Image"].place(relx=0.5, rely=0.5, anchor="center")
+        self.labels["Image"].bind("<Button-1>", self.printPixelPosition)
         
         #self.labels["Caption"].config(text=self.caption)
         self.texts["Caption"].insert("1.0", self.caption)
@@ -240,10 +277,10 @@ class AnnotationTool(tb.Window):
         
         # Place and update the image creation frame and pixel position frame
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=2)
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=0, sticky="ew", padx=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=1, sticky="nsew", padx=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10, ipadx=30)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew", padx=10)
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(0, weight=1)
@@ -266,6 +303,15 @@ class AnnotationTool(tb.Window):
         self.labels["Wiki_link"].config(text = self.link)
         self.labels["Wiki_link"].grid(row=0, column=0, sticky="ew")
         self.labels["Wiki_link"].bind("<Button-1>", lambda k: self.openWiki(k,self.link))
+        
+        # Update and place the control panel widgets
+        
+        self.frames["Control_panel"].grid_rowconfigure(0, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(0, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(1, weight=1)
+        
+        self.buttons["Previous"].grid(row=0, column=0, padx=10)
+        self.buttons["Next"].grid(row=0, column=1, padx=10)
         
         
 
