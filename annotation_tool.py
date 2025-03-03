@@ -28,6 +28,7 @@ class AnnotationTool(tb.Window):
         self.texts = {'Person_info_frame': {}}
         self.comboboxes = {'Person_info_frame': { "Birth":  {}},
                            'Image_creation_frame_plus_pixel_pos': {}}
+        self.menus = {}
         
         # Class attributes initialization
         self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
@@ -80,6 +81,8 @@ class AnnotationTool(tb.Window):
         self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecord , padding=10, width=100, takefocus=False)
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
         
+        #Create a menu widget
+        self.menus["Next_or_prev"] = tb.Menu(self)
         self.defaultScreenBuild()
         
     def readCaption(self, captionID = 1) -> None:
@@ -91,7 +94,7 @@ class AnnotationTool(tb.Window):
             None
         """
         with(open(f"captions/fig{captionID}.txt", "r")) as file:
-            caption = file.readline() + "ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj ahoj"
+            caption = file.readline()
         
         self.caption = caption
     
@@ -202,6 +205,40 @@ class AnnotationTool(tb.Window):
         x, y = event.x, event.y
         self.pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
         self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Pixel coordinates (x,y) are: ({x}, {y})")
+     
+    def openPopup(self, reference_errors: list, error_vals: list) -> None:
+        # Create a new popup window (Toplevel)
+        
+        popup = tb.Toplevel(self)
+        popup.title("Error")
+        popup_width = 600
+        popup_height = 400
+        
+        # Make the popup modal (optional)
+        popup.grab_set()
+        
+        # Get the main window's position and size
+        main_x = self.winfo_x()
+        main_y = self.winfo_y()
+        main_width = self.winfo_width()
+        main_height = self.winfo_height()
+        
+        # Calculate coordinates for centering the popup
+        pos_x = main_x + (main_width // 2) - (popup_width // 2)
+        pos_y = main_y + (main_height // 2) - (popup_height // 2)
+        
+        # Set the new geometry with the calculated coordinates
+        
+        popup.geometry(f"+{pos_x}+{pos_y}")
+
+        # Add a label and a close button to the popup
+        for i in range(len(reference_errors)):
+            if error_vals[i]:
+                label = tb.Label(popup, text=reference_errors[i])
+                label.pack(padx=20, pady=5, anchor="w")
+        
+        close_button = tb.Button(popup, text="Close", bootstyle = tb.DANGER, command=popup.destroy, takefocus=False)
+        close_button.pack(pady=10)
     
     def nextRecord(self) -> None:
         """
@@ -209,7 +246,61 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        pass
+        list_of_errors = ["Name is not filled!",
+                          "Birth day is not filled!",
+                          "Birth day is not integer in the range 1-31!",
+                          "Birth month is not filled!",
+                          "Birth month is not integer in the range 1-12 or its name is written incorrectly!",
+                          "Birth year is not filled!",
+                          f"Birth year is not integer lower than the current year!",
+                          "Estimated year of image creation is not filled!",
+                          "Estimated year of image creation is not integer lower than the current year!",
+                          "Estimated year of image creation uncertainty is not filled!",
+                          "Estimated year of image creation uncertainty is not integer!",
+                          "Pixel position is not filled!"]
+        
+        list_or_errors_vals = [False, False, False, False, False, False, False, False, False, False, False, False]
+        list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        
+        name = self.entries["Person_info_frame"]["Name"].get()
+        birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
+        birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
+        birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
+        estimated_year_creation = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year"].get()
+        estimated_year_uncertainty = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].get()
+        pixel_position = self.pixel_position
+        
+        if name == "":
+            list_or_errors_vals[0] = True
+        if birth_day == "":
+            list_or_errors_vals[1] = True
+        if not birth_day.isdigit() or int(birth_day) not in range(1,32):
+            list_or_errors_vals[2] = True
+        if birth_month == "":
+            list_or_errors_vals[3] = True
+        if not birth_month.isdigit() and birth_month.lower() not in list_of_month_names:
+            list_or_errors_vals[4] = True
+        if birth_month.isdigit() and int(birth_month) not in range(1,13):
+            list_or_errors_vals[4] = True
+        if birth_year == "":
+            list_or_errors_vals[5] = True
+        if not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1):
+            list_or_errors_vals[6] = True
+        if estimated_year_creation == "":
+            list_or_errors_vals[7] = True
+        if not estimated_year_creation.isdigit() or int(estimated_year_creation) not in range(datetime.date.today().year + 1):
+            list_or_errors_vals[8] = True
+        if estimated_year_uncertainty == "":
+            list_or_errors_vals[9] = True
+        if not estimated_year_uncertainty.isdigit():
+            list_or_errors_vals[10] = True
+        if pixel_position == (None, None):
+            list_or_errors_vals[11] = True
+        
+        if any(list_or_errors_vals):
+            self.openPopup(list_of_errors, list_or_errors_vals)
+        else:
+            pass
     
     def previousRecord(self) -> None:
         """
@@ -217,7 +308,61 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        pass
+        list_of_errors = ["Name is not filled!",
+                          "Birth day is not filled!",
+                          "Birth day is not integer in the range 1-31!",
+                          "Birth month is not filled!",
+                          "Birth month is not integer in the range 1-12 or its name is written incorrectly!",
+                          "Birth year is not filled!",
+                          f"Birth year is not integer lower than the current year!",
+                          "Estimated year of image creation is not filled!",
+                          "Estimated year of image creation is not integer lower than the current year!",
+                          "Estimated year of image creation uncertainty is not filled!",
+                          "Estimated year of image creation uncertainty is not integer!",
+                          "Pixel position is not filled!"]
+        
+        list_or_errors_vals = [False, False, False, False, False, False, False, False, False, False, False, False]
+        list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        
+        name = self.entries["Person_info_frame"]["Name"].get()
+        birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
+        birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
+        birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
+        estimated_year_creation = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year"].get()
+        estimated_year_uncertainty = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].get()
+        pixel_position = self.pixel_position
+        
+        if name == "":
+            list_or_errors_vals[0] = True
+        if birth_day == "":
+            list_or_errors_vals[1] = True
+        if not birth_day.isdigit() or int(birth_day) not in range(1,32):
+            list_or_errors_vals[2] = True
+        if birth_month == "":
+            list_or_errors_vals[3] = True
+        if not birth_month.isdigit() and birth_month.lower() not in list_of_month_names:
+            list_or_errors_vals[4] = True
+        if birth_month.isdigit() and int(birth_month) not in range(1,13):
+            list_or_errors_vals[4] = True
+        if birth_year == "":
+            list_or_errors_vals[5] = True
+        if not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1):
+            list_or_errors_vals[6] = True
+        if estimated_year_creation == "":
+            list_or_errors_vals[7] = True
+        if not estimated_year_creation.isdigit() or int(estimated_year_creation) not in range(datetime.date.today().year + 1):
+            list_or_errors_vals[8] = True
+        if estimated_year_uncertainty == "":
+            list_or_errors_vals[9] = True
+        if not estimated_year_uncertainty.isdigit():
+            list_or_errors_vals[10] = True
+        if pixel_position == (None, None):
+            list_or_errors_vals[11] = True
+        
+        if any(list_or_errors_vals):
+            self.openPopup(list_of_errors, list_or_errors_vals)
+        else:
+            pass
         
 
     def defaultScreenBuild(self):
