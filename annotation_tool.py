@@ -20,12 +20,14 @@ class AnnotationTool(tb.Window):
         
         # Widget dictionaries initialization
         self.frames = {'Person_info_frame': {},
-                       'Image_creation_frame': {}}
+                       'Image_creation_frame_plus_pixel_pos': {}}
         self.buttons = {'Person_info_frame': {}}
-        self.labels = {'Person_info_frame': {}}
+        self.labels = {'Person_info_frame': {},
+                       'Image_creation_frame_plus_pixel_pos': {}}
         self.entries = {'Person_info_frame': {}}
         self.texts = {'Person_info_frame': {}}
-        self.comboboxes = {'Person_info_frame': { "Birth":  {}}}
+        self.comboboxes = {'Person_info_frame': { "Birth":  {}},
+                           'Image_creation_frame_plus_pixel_pos': {}}
         
         # Class attributes initialization
         self.image = None
@@ -42,8 +44,9 @@ class AnnotationTool(tb.Window):
         self.frames["Person_info_frame"]["Name"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Name", padding=10)
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
         self.frames["Wiki_link"] = tb.Labelframe(self, text="Link to Wikipedia website", padding=10)
-        self.frames["Image_creation_frame"] = tb.Labelframe(self, text="Estimated year of image creation", padding=10)
-        self
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Estimated year of image creation", padding=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Pixel position of the person", padding=10)
         
         self.frames["Control_panel"] = tb.Labelframe(self, text="Control Panel", padding=10)
         
@@ -53,6 +56,8 @@ class AnnotationTool(tb.Window):
         #self.labels["Person_info_frame"]["Name"] = tb.Label(self.frames["Person_info_frame"]["Name"], font=self.info_font)
         #self.labels["Person_info_frame"]["Birth"] = tb.Label(self.frames["Person_info_frame"]["Birth"], font=self.info_font)
         self.labels["Wiki_link"] = tb.Label(self.frames["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
+        self.labels["Image_creation_frame_plus_pixel_pos"]["pm"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text="±", font=self.info_font)
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], text="Click on the image", font=self.info_font)
         
         # Create a text widget
         self.texts["Caption"] = ScrolledText(self.frames["Caption"], font=self.info_font, height=5, width=30, wrap= "word", autohide = True)
@@ -65,6 +70,8 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Person_info_frame"]["Birth"]["Day"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values=[str(i) for i in range(1,32)], width=2)
         self.comboboxes["Person_info_frame"]["Birth"]["Month"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], width=10)
         self.comboboxes["Person_info_frame"]["Birth"]["Year"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= [str(i) for i in range(101)],width=2)
         
         self.defaultScreenBuild()
         
@@ -184,18 +191,21 @@ class AnnotationTool(tb.Window):
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
-        self.grid_rowconfigure(3, weight=20)
+        self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=20)
         self.grid_columnconfigure(0, minsize = int(self.winfo_width()/3), weight=1)
         self.grid_columnconfigure(1, minsize = int(self.winfo_width()/2), weight=1)
         
         # Place the lefthand frames
-        self.frames["Image"].grid(row=0, column=0, rowspan = 4, sticky="nsew", padx=10, pady=40)
+        self.frames["Image"].grid(row=0, column=0, rowspan = 5, sticky="nsew", padx=10, pady=40)
         
         #Place the righthand frames
-        self.frames["Person_info_frame"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)
         self.frames["Caption"].grid(row=0, column=1, sticky="ew", padx=27, pady=20)
         self.frames["Wiki_link"].grid(row=1, column=1, sticky="ew", padx=27, pady=10)
-        self.frames["Control_panel"].grid(row=3, column=1, sticky="nsew", padx=27, pady=20)
+        self.frames["Person_info_frame"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=3, column=1, sticky="ew", padx=27, pady=20)
+        self.frames["Control_panel"].grid(row=4, column=1, sticky="nsew", padx=27, pady=20)
+        
         
         # Update and place the image and caption
         self.readCaption()
@@ -227,6 +237,27 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=10)
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=10)
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=10)
+        
+        # Place and update the image creation frame and pixel position frame
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=0, sticky="ew", padx=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=1, sticky="nsew", padx=10)
+        
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(1, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(2, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_rowconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(0, weight=1)
+        
+        
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year"].grid(row=0, column=0, padx=10)
+        self.labels["Image_creation_frame_plus_pixel_pos"]["pm"].grid(row=0, column=1, padx=10)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].grid(row=0, column=2, padx=10)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].set("0")
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, sticky="ew", padx=10)
         
         
         # Update and place Wikipedia link
