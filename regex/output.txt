@@ -1,2 +1,16 @@
 0
 birth year =  1939
+year from infobox caption=, [1970 1979]
+No file named "captions.json" found.
+-----------------------------------
+birth year =  1955
+No file named "captions.json" found.
+-----------------------------------
+birth year =  1939
+caption= Start of National Service
+year from caption = None
+-----------------------------------
+birth year =  1999
+year from infobox caption=, 2016
+No file named "captions.json" found.
+-----------------------------------
