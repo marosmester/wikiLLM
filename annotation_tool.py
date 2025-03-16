@@ -10,6 +10,7 @@ import datetime
 import os
 import webview
 import multiprocessing
+import json
 
 
 def multiProcessWeb(link):
@@ -107,9 +108,38 @@ class AnnotationTool(tb.Window):
         #Create a checkbutton widget
         self.checkbuttons["Pos_to_annote"] = tb.Checkbutton(self.frames["Pos_to_annote"], width=3, bootstyle="round-toggle")
         
+        #Load database
+        with open("data.json", "r") as file:
+            self.data = json.load(file)
+        
+        self.catRelatedImages()
+        
         #Create a menu widget
         self.menus["Next_or_prev"] = tb.Menu(self)
         self.defaultScreenBuild()
+        
+    def catRelatedImages(self) -> None:
+        """
+        Concatenates images of the same person.
+        Returns:
+            None
+        """
+        last_person = None
+        new_data = []
+        index = -1
+        
+        for i in range(len(self.data)):
+            parsed_path = self.data[i]["path"].split("/")
+            
+            if parsed_path[2] == last_person:
+                new_data[index].append(self.data[i])
+            else:
+                new_data.append([self.data[i]])
+                index += 1
+                
+            last_person = parsed_path[2]
+        
+        self.data = new_data            
         
     def readCaption(self, captionID = 1) -> None:
         """
