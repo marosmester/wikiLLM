@@ -42,7 +42,7 @@ def load_caption_json(path_to_person : str, caption_file : str):
         loaded = json.load(f)
     return loaded
 
-def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]]|None):
+def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]]):
     """
     Helper function, returns a dictionary - informations about a specific image for updated json file
     """
@@ -87,7 +87,7 @@ def select_relevant_bboxes(parse_bboxes : bool, bbox_df : pd.DataFrame, filename
     relevant_bboxes_selected = relevant_bboxes.iloc[:, 1:9]
     return relevant_bboxes_selected.values.tolist()
 
-def show_person(image_path : str, caption : str, bboxes : list[list[int]]| None = None):
+def show_person(image_path : str, caption : str, bboxes : list[list[int]]):
     """
     Shows the image of a person with a caption (and bboxes)
     Args:
@@ -191,4 +191,3 @@ if __name__ == "__main__":
     print(os.getcwd())
     path = "./minisubset"
     parse_persons(path, write=False)
-    
