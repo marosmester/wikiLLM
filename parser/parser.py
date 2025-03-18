@@ -53,7 +53,7 @@ def get_url_to_page(name : str, lang : str = "en"):
     except:
         return 
 
-def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]]|None, url_to_wiki_page : str):
+def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]], url_to_wiki_page : str):
     """
     Helper function, returns a dictionary - informations about a specific image for updated json file
     """
@@ -203,4 +203,3 @@ if __name__ == "__main__":
     print(os.getcwd())
     path = "./minisubset"
     parse_persons(path, write=True)
-    

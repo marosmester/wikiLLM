@@ -15,7 +15,7 @@ import copy
 
 
 def multiProcessWeb(link):
-    web = webview.create_window('Simple browser', link, on_top=True, x=-10, y=-2, width=650, height=840)
+    web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
     webview.start()
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
@@ -62,7 +62,7 @@ class AnnotationTool(tb.Window):
         self.birth_year = None
         self.link = None
         self.scaling_factor = None
-        self.pixel_position = (None, None)
+        self.bounding_box_index = None
         self.person_index = 0
         self.person_sub_index = 0
         self.web_proc = None
@@ -121,7 +121,7 @@ class AnnotationTool(tb.Window):
         self.checkbuttons["Pos_to_annote"] = tb.Checkbutton(self.frames["Pos_to_annote"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_fully_annotate_var)
         
         #Load database
-        with open("data.json", "r") as file:
+        with open("data1.json", "r") as file:
             self.data = json.load(file)
         
         self.catRelatedImages()
@@ -163,6 +163,7 @@ class AnnotationTool(tb.Window):
             last_person = parsed_path[2]
         
         self.data = new_data
+        print(self.data)
                     
     def readCaption(self) -> None:
         """
@@ -207,6 +208,13 @@ class AnnotationTool(tb.Window):
             bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
             cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
                           (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
+        
+        if self.bounding_box_index != None:
+            bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][self.bounding_box_index]
+            overlay = resized_img.copy()
+            cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+                          (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
+            cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
             
             
         # Step 3: Convert the image from BGR to RGB
@@ -233,16 +241,16 @@ class AnnotationTool(tb.Window):
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
         
-        self.birth_day = 7
+        self.birth_day = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(str(self.birth_day))
         
-        self.birth_month = "September"
+        self.birth_month = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(self.birth_month)
         
-        self.birth_year = 1944
+        self.birth_year = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(str(self.birth_year))
     
-    def readWikiLink(self, personID = 1) -> None:
+    def readWikiLink(self) -> None:
         """
         Reads a person's Wikipedia link from a file and returns it.
         Args:
@@ -250,8 +258,8 @@ class AnnotationTool(tb.Window):
         Returns:
             str: The Wikipedia link.
         """
-        with(open(f"wiki/fig{personID}.txt", "r", encoding="UTF-8")) as file:
-            self.link = file.readline()
+        self.link = self.data[self.person_index][self.person_sub_index]["url"]
+        #self.labels["Wiki_link"].config(text=self.link)
         
     
     def openWiki(self, event, link: str) -> None:
@@ -276,28 +284,37 @@ class AnnotationTool(tb.Window):
             None
         """
         x, y = event.x, event.y
-        self.pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
+        pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
         img = imread_unicode(self.data[self.person_index][self.person_sub_index]["path"])
         h, w = img.shape[:2]
         resized_img = cv2.resize(img, (int(w*self.scaling_factor), int(h*self.scaling_factor)), interpolation=cv2.INTER_AREA)
+        cnt = 0
         
         for i in range(len(self.data[self.person_index][self.person_sub_index]["bbox_info"])):
             bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
             cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
                           (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
-            if(self.pixel_position[0] >= bbox[0] and self.pixel_position[0] <= bbox[4] and 
-               self.pixel_position[1] >= bbox[1] and self.pixel_position[1] <= bbox[5]):
+            if(pixel_position[0] >= bbox[0] and pixel_position[0] <= bbox[4] and 
+               pixel_position[1] >= bbox[1] and pixel_position[1] <= bbox[5]):
                overlay = resized_img.copy()
+               cnt += 1
+               self.bounding_box_index = i
                cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
                              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
                cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
-               
+        
+        if cnt == 0:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was not picked!")
+        elif cnt == 1:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Bounding box was picked!")
+        else:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Multiple bounding boxes were picked!")
+            self.bounding_box_index = None
+        
         resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(resized_img)
         self.image = ImageTk.PhotoImage(pil_img)
         self.labels["Image"].config(image=self.image)
-                                          
-        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Pixel coordinates (x,y) are: ({x}, {y})")
      
     def openPopup(self, reference_errors: list, error_vals: list) -> None:
         # Create a new popup window (Toplevel)
@@ -357,7 +374,7 @@ class AnnotationTool(tb.Window):
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
         impossible_to_annote = self.checkbuttons["Pos_to_annote"].instate(["selected"])
         anootation_shortcommings = self.texts["Pos_to_annote"].get("1.0", "end")
-        pixel_position = self.pixel_position
+        bounding_box_index = self.bounding_box_index
         
         if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
             self.data_from_annotation[self.person_index][self.person_sub_index] = {"birth_day": birth_day,
@@ -367,7 +384,7 @@ class AnnotationTool(tb.Window):
                                                                                   "estimated_year_creation_right": estimated_year_creation_right,
                                                                                   "impossible_to_annote": impossible_to_annote,
                                                                                   "annotation_shortcommings": anootation_shortcommings,
-                                                                                  "pixel_position": pixel_position}
+                                                                                  "bounding_box_index": bounding_box_index}
         else:
             self.data_from_annotation[self.person_index].append({"birth_day": birth_day,
                                                                  "birth_month": birth_month,
@@ -376,10 +393,9 @@ class AnnotationTool(tb.Window):
                                                                  "estimated_year_creation_right": estimated_year_creation_right,
                                                                  "impossible_to_annote": impossible_to_annote,
                                                                  "annotation_shortcommings": anootation_shortcommings,
-                                                                 "pixel_position": pixel_position})
+                                                                 "bounding_box_index": bounding_box_index})
         
-        print(self.data_from_annotation[self.person_index])
-    
+        
     def removeDataFromAnnotationWidgets(self) -> None:
         """
         Removes the data from the annotation widgets.
@@ -397,7 +413,7 @@ class AnnotationTool(tb.Window):
             self.texts["Pos_to_annote"].delete("1.0", "end")
             self.texts["Pos_to_annote"].config(state="disabled")
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-            self.pixel_position = (None, None)
+            self.bounding_box_index = None
         else:
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
@@ -406,7 +422,7 @@ class AnnotationTool(tb.Window):
             self.texts["Pos_to_annote"].delete("1.0", "end")
             self.texts["Pos_to_annote"].config(state="disabled")
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-            self.pixel_position = (None, None)
+            self.bounding_box_index = None
     
     def fillDataToAnnotationWidgets(self) -> None:
         """
@@ -421,9 +437,7 @@ class AnnotationTool(tb.Window):
         estimated_year_creation_right = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_right"]
         impossible_to_annote = self.data_from_annotation[self.person_index][self.person_sub_index]["impossible_to_annote"]
         annotation_shortcommings = self.data_from_annotation[self.person_index][self.person_sub_index]["annotation_shortcommings"]
-        self.pixel_position = self.data_from_annotation[self.person_index][self.person_sub_index]["pixel_position"]
-        
-        pixel_position_resc = (int(self.scaling_factor*self.pixel_position[0]), int(self.scaling_factor*self.pixel_position[1]))
+        self.bounding_box_index = self.data_from_annotation[self.person_index][self.person_sub_index]["bounding_box_index"]
         
         self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(birth_day)
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(birth_month)
@@ -435,8 +449,11 @@ class AnnotationTool(tb.Window):
         self.texts["Pos_to_annote"].delete("1.0", "end")
         self.texts["Pos_to_annote"].insert("1.0", annotation_shortcommings)
         self.texts["Pos_to_annote"].config(state="disabled")
-        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Pixel coordinates (x,y) are: ({pixel_position_resc[0]}, {pixel_position_resc[1]})")
-        
+        if self.bounding_box_index != None:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was picked!")
+        else:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
+                    
     def nextRecord(self) -> None:
         """
         Displays the next record in the database.
@@ -449,7 +466,7 @@ class AnnotationTool(tb.Window):
                           "Estimated year of image creation (left boundary) is not filled or is not an integer lower than the current year!",
                           "Estimated year of image creation (right boundary) is not filled or is not an integer lower than the current year!",
                           "Estimated year of image creation (right boundary) is lower than its (left boundary)!",
-                          "Bounding box was not picked!"]
+                          "Bounding box was not picked or multiple bounding boxes were picked!"]
         
         list_or_errors_vals = [False, False, False, False, False, False, False]
         list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
@@ -459,7 +476,7 @@ class AnnotationTool(tb.Window):
         birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
         estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
-        pixel_position = self.pixel_position
+        bounding_box = self.bounding_box_index
         
         if not birth_day.isdigit() or int(birth_day) not in range(1,32):
             list_or_errors_vals[0] = True
@@ -475,7 +492,7 @@ class AnnotationTool(tb.Window):
             list_or_errors_vals[4] = True
         if estimated_year_creation_left.isdigit() and estimated_year_creation_right.isdigit() and int(estimated_year_creation_right) < int(estimated_year_creation_left):
             list_or_errors_vals[5] = True
-        if pixel_position == (None, None):
+        if bounding_box == None:
             list_or_errors_vals[6] = True
         
         if any(list_or_errors_vals) and not self.checkbuttons["Pos_to_annote"].instate(["selected"]):
@@ -499,7 +516,9 @@ class AnnotationTool(tb.Window):
             self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
             self.entries["Control_panel"]["RIGHT"].config(state="readonly")
             
-            if self.data_from_annotation[self.person_index] != []:
+            print(self.data_from_annotation[self.person_index], self.person_sub_index)
+            
+            if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
                 self.fillDataToAnnotationWidgets()
             else:
                 self.removeDataFromAnnotationWidgets()
@@ -749,7 +768,7 @@ class AnnotationTool(tb.Window):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 0
+    theme_lightness = 1
     
     if not theme_lightness:
         app = AnnotationTool(themename="cosmo")
@@ -758,6 +777,7 @@ if __name__ == "__main__":
         
     print("App is running")
     app.mainloop()
-    app.web_proc.join()
+    if app.web_proc != None:
+        app.web_proc.join()
     print("App is closed")
     
