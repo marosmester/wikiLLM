@@ -5,6 +5,9 @@ import json
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patches
+import wikipedia
+import sys
+sys.stdout.reconfigure(encoding='utf-8')
 
 
 def check_raster_image(image_name : str):
@@ -42,13 +45,22 @@ def load_caption_json(path_to_person : str, caption_file : str):
         loaded = json.load(f)
     return loaded
 
-def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]]):
+def get_url_to_page(name : str, lang : str = "en"):
+    wikipedia.set_lang(lang)
+    try:
+        url = wikipedia.page(name, auto_suggest=False, preload=False).url
+        return url
+    except:
+        return 
+
+def create_new_person_json(path_to_person : str, subdirectory : str, saved_filename : str, image_description : str, bbox_info : list[list[int]]|None, url_to_wiki_page : str):
     """
     Helper function, returns a dictionary - informations about a specific image for updated json file
     """
     return {"path" : f"{path_to_person}/{subdirectory}/{saved_filename}",
                                  "caption" : image_description["caption"],
-                                 "bbox_info" : bbox_info}
+                                 "bbox_info" : bbox_info,
+                                 "url" : url_to_wiki_page}
 
 def load_bbox_desc_file(parse_bboxes, path, subdirectory, filename = "faces_with_bboxes.csv"):
     """
@@ -153,13 +165,13 @@ def mine_data_for_person(path : str,
         else:
             continue
         bbox_csv_file = load_bbox_desc_file(parse_bboxes, path_to_person, subdirectory)
-
+        page_url = get_url_to_page(person_name)
         for image_description in person_json:
             saved_filename = image_description['saved_filename'].split("/")[-1]
             if not check_raster_image(saved_filename):
                 continue
             bbox_info = select_relevant_bboxes(parse_bboxes, bbox_csv_file, saved_filename)
-            cur_picture_new_json = create_new_person_json(path_to_person, subdirectory, saved_filename, image_description, bbox_info)
+            cur_picture_new_json = create_new_person_json(path_to_person, subdirectory, saved_filename, image_description, bbox_info, page_url)
             updated_json.append(cur_picture_new_json)
     return updated_json
 
@@ -183,7 +195,7 @@ def parse_persons(path : str, show_persons : bool = False, write : bool = False)
         jsons.extend(cur_person_json)
         print(person, len(cur_person_json))
     if write:
-        with open('data.json', 'w', encoding="utf8") as f:
+        with open('data1.json', 'w', encoding="utf8") as f:
             json.dump(jsons, f, indent=4)
 
 
@@ -191,3 +203,4 @@ if __name__ == "__main__":
     print(os.getcwd())
     path = "./minisubset"
     parse_persons(path, write=True)
+    
