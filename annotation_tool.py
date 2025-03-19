@@ -12,11 +12,36 @@ import webview
 import multiprocessing
 import json
 import copy
-
+import re
+from pathlib import Path
 
 def multiProcessWeb(link):
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
     webview.start()
+
+def find_year_file(fpath, pattern):
+    '''
+    Search any elligible file AS IT WAS A TXT FILE.
+    '''
+    with open(fpath, "r", encoding="UTF-8") as f:
+        content = f.read()
+    match = re.search(pattern, content)
+    return match
+
+def find_birth_year(path_to_person):
+    '''
+    Finds the person's birth year in the wikipedia body text file.
+    '''
+    # Get birth year from wiki main text
+    main_text = path_to_person / "text.txt"
+    pattern = r"Category:\b[12]\d{3}\b births" # 4 digit number beginning with a 1 or a 2
+    x = find_year_file(main_text, pattern)
+    if x is not None:
+        byear = int( x.group()[9:13] )           # extract birth yeat as int
+    else:
+        byear = None
+
+    return byear
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
     # Read the file as a numpy array of bytes
@@ -163,7 +188,6 @@ class AnnotationTool(tb.Window):
             last_person = parsed_path[2]
         
         self.data = new_data
-        print(self.data)
                     
     def readCaption(self) -> None:
         """
@@ -241,13 +265,22 @@ class AnnotationTool(tb.Window):
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
         
+        path = self.data[self.person_index][self.person_sub_index]["path"].split("/")
+        path = "./" + path[1] + "/" + path[2]
+        path = Path(path)
+        
         self.birth_day = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(str(self.birth_day))
         
         self.birth_month = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(self.birth_month)
         
-        self.birth_year = ""
+        
+        self.birth_year = str(find_birth_year(path))
+        
+        if self.birth_year == "None":
+            self.birth_year = ""
+            
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(str(self.birth_year))
     
     def readWikiLink(self) -> None:
@@ -367,26 +400,34 @@ class AnnotationTool(tb.Window):
         if self.data_from_annotation == None:
             self.data_from_annotation = [[] for i in range(len(self.data))]
         
+        months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        
         birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
         birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
+        if birth_month.lower() in months:
+            birth_month = months.index(birth_month.lower()) + 1
+            
         birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
         estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
         impossible_to_annote = self.checkbuttons["Pos_to_annote"].instate(["selected"])
         anootation_shortcommings = self.texts["Pos_to_annote"].get("1.0", "end")
         bounding_box_index = self.bounding_box_index
+        path = self.data[self.person_index][self.person_sub_index]["path"]
         
         if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
-            self.data_from_annotation[self.person_index][self.person_sub_index] = {"birth_day": birth_day,
-                                                                                  "birth_month": birth_month,
-                                                                                  "birth_year": birth_year,
-                                                                                  "estimated_year_creation_left": estimated_year_creation_left,
-                                                                                  "estimated_year_creation_right": estimated_year_creation_right,
-                                                                                  "impossible_to_annote": impossible_to_annote,
-                                                                                  "annotation_shortcommings": anootation_shortcommings,
-                                                                                  "bounding_box_index": bounding_box_index}
+            self.data_from_annotation[self.person_index][self.person_sub_index] = {"path": path,
+                                                                                   "birth_day": birth_day,
+                                                                                   "birth_month": birth_month,
+                                                                                   "birth_year": birth_year,
+                                                                                   "estimated_year_creation_left": estimated_year_creation_left,
+                                                                                   "estimated_year_creation_right": estimated_year_creation_right,
+                                                                                   "impossible_to_annote": impossible_to_annote,
+                                                                                   "annotation_shortcommings": anootation_shortcommings,
+                                                                                   "bounding_box_index": bounding_box_index}
         else:
-            self.data_from_annotation[self.person_index].append({"birth_day": birth_day,
+            self.data_from_annotation[self.person_index].append({"path": path,
+                                                                 "birth_day": birth_day,
                                                                  "birth_month": birth_month,
                                                                  "birth_year": birth_year,
                                                                  "estimated_year_creation_left": estimated_year_creation_left,
@@ -516,8 +557,6 @@ class AnnotationTool(tb.Window):
             self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
             self.entries["Control_panel"]["RIGHT"].config(state="readonly")
             
-            print(self.data_from_annotation[self.person_index], self.person_sub_index)
-            
             if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
                 self.fillDataToAnnotationWidgets()
             else:
@@ -596,7 +635,6 @@ class AnnotationTool(tb.Window):
             if(self.person_index != 0):
                 self.person_index -= 1
                 self.person_sub_index = len(self.data[self.person_index]) - 1
-                print("in")
         else:
             self.person_sub_index -= 1
         
@@ -777,6 +815,7 @@ if __name__ == "__main__":
         
     print("App is running")
     app.mainloop()
+    print(app.data_from_annotation)  
     if app.web_proc != None:
         app.web_proc.join()
     print("App is closed")
