@@ -768,7 +768,7 @@ class AnnotationTool(tb.Window):
 
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 1
+    theme_lightness = 0
     
     if not theme_lightness:
         app = AnnotationTool(themename="cosmo")
