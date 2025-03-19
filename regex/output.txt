@@ -1,16 +1,1064 @@
-0
+0 Abdelmajid_Chetali
 birth year =  1939
-year from infobox caption=, [1970 1979]
+year from infobox caption=  [1970 1979]
 No file named "captions.json" found.
 -----------------------------------
+1 Abel_Sanchez
 birth year =  1955
+File "infobox_captions.json" is empty
 No file named "captions.json" found.
 -----------------------------------
+2 Aden_Mohamed_Ali
 birth year =  1939
+File "infobox_captions.json" is empty
 caption= Start of National Service
 year from caption = None
 -----------------------------------
+3 Aedan_Stanley
 birth year =  1999
-year from infobox caption=, 2016
+year from infobox caption=  2016
+No file named "captions.json" found.
+-----------------------------------
+4 Ahmed_Mian_Soomro
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+5 Ajara_Nchout
+birth year =  1993
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+6 Alain_Kassanda
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+7 Alberto_Bellini
+birth year =  1987
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+8 Aleksey_Markovsky
+birth year =  1957
+year from infobox caption=  2005
+No file named "captions.json" found.
+-----------------------------------
+9 Alex_Webster
+birth year =  1969
+year from infobox caption=  2010
+No file named "captions.json" found.
+-----------------------------------
+10 Alexander_James_Kent
+birth year =  1977
+year from infobox caption=  None
+caption= Kent using a Soviet topographic map while crossing the mountains between Kazakhstan and Kyrgyzstan, July 2001
+year from caption = 2001
+-----------------------------------
+11 Alexandre_Gallo
+birth year =  1967
+year from infobox caption=  2021
+caption= left|125px|Gallo managing Al-Ain in 2011
+year from caption = 2011
+caption= right|180px|Gallo in 2014
+year from caption = 2014
+-----------------------------------
+12 Alicka_Ampry-Samuel
+birth year =  1976
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+13 Alistair_Macdonald-Radcliff
+No birth year found in "text.txt".
+year from infobox caption=  2013
+No file named "captions.json" found.
+-----------------------------------
+14 Alon_Pinkas
+birth year =  1961
+year from infobox caption=  2015
+No file named "captions.json" found.
+-----------------------------------
+15 Amanda_Kurtović
+birth year =  1991
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+16 Aminu_Bello_Masari
+birth year =  1950
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+17 Amy_Lamé
+birth year =  1971
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+18 Anatoliy_Kitsuta
+birth year =  1985
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+19 Andre_Ethier
+birth year =  1982
+year from infobox caption=  2013
+caption= left|228px|Ethier in 2008
+year from caption = 2008
+-----------------------------------
+20 Andrea_Jaurrieta
+birth year =  1986
+year from infobox caption=  2024
+No file named "captions.json" found.
+-----------------------------------
+21 Andrew_B._Lippman
+No birth year found in "text.txt".
+year from infobox caption=  2011
+No file named "captions.json" found.
+-----------------------------------
+22 Andrew_Stroud
+birth year =  1967
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+23 Andy_Greene
+birth year =  1982
+year from infobox caption=  2014
+No file named "captions.json" found.
+-----------------------------------
+24 Angel_Fashion
+birth year =  1987
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+25 Anita_Fetz
+birth year =  1957
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+26 Annalisa_Coltorti
+birth year =  1963
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+27 Anne_M._Thompson
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+28 Anouska_Koster
+birth year =  1993
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+29 Anthony_Simonsen
+birth year =  1997
+year from infobox caption=  2019
+caption= Simonsen at a 2016 tournament (age 19)
+year from caption = 2016
+-----------------------------------
+30 Antonio_José_Sánchez_Mazuecos
+birth year =  1995
+year from infobox caption=  2022
+caption= left|Antonio José during the final of the Spanish preselection for Junior Eurovision, 2005
+year from caption = 2005
+-----------------------------------
+31 Anusree
+birth year =  1990
+year from infobox caption=  2023
+No file named "captions.json" found.
+-----------------------------------
+32 Ariane_Sherine
+birth year =  1980
+year from infobox caption=  2009
+caption= Sherine and Richard Dawkins at the Atheist Bus Campaign launch in London in January 2009
+year from caption = 2009
+-----------------------------------
+33 Armando_Flores
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+34 Artem_Kolinko
+birth year =  1984
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+35 Arya_Dhayal
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+36 Asim_Ghosh
+birth year =  1947
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+37 Audrey_Esparza
+birth year =  1986
+year from infobox caption=  2015
+No file named "captions.json" found.
+-----------------------------------
+38 Babu_Santana
+birth year =  1979
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+39 Barbara_Contini
+birth year =  1961
+No file named "infobox_captions.json" found.
+caption= Barbara Contini
+year from caption = None
+-----------------------------------
+40 Bart_Chabot
+birth year =  1954
+year from infobox caption=  2010
+No file named "captions.json" found.
+-----------------------------------
+41 Beau_Parry
+No birth year found in "text.txt".
+No file named "infobox_captions.json" found.
+caption= Beau Parry
+year from caption = None
+-----------------------------------
+42 Ben_Dover
+birth year =  1956
+year from infobox caption=  [1980 1989]
+No file named "captions.json" found.
+-----------------------------------
+43 Benjamin_Šeško
+birth year =  2003
+year from infobox caption=  2023
+caption= 218x218px|Šeško (number 11) with Slovenia in 2022
+year from caption = 2022
+-----------------------------------
+44 Bente_Landheim
+birth year =  1990
+year from infobox caption=  2011
+No file named "captions.json" found.
+-----------------------------------
+45 Bernhard_Rammerstorfer
+birth year =  1968
+No file named "infobox_captions.json" found.
+caption= Frankfurter Buchmesse 2011 - Rammerstorfer und Engleitneer
+year from caption = 2011
+-----------------------------------
+46 Bill_David
+No birth year found in "text.txt".
+year from infobox caption=  2016
+No file named "captions.json" found.
+-----------------------------------
+47 Blake_Moore
+birth year =  1980
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+48 Bonnie_Bedelia
+birth year =  1948
+year from infobox caption=  1974
+No file named "captions.json" found.
+-----------------------------------
+49 Braden_Shewmake
+birth year =  1997
+year from infobox caption=  2023
+No file named "captions.json" found.
+-----------------------------------
+50 Brandon_Triche
+birth year =  1991
+year from infobox caption=  2013
+No file named "captions.json" found.
+-----------------------------------
+51 Brett_Kearney
+birth year =  1983
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+52 Brian_Mariano
+birth year =  1985
+year from infobox caption=  2010
+No file named "captions.json" found.
+-----------------------------------
+53 Bronwen_Knox
+birth year =  1986
+year from infobox caption=  None
+caption= left|300px|Knox (bottom left) in the third of a five-game test series against the British women's team on 25 February 2012. Australia won 15–6|alt=three women in a pool.
+year from caption = 2012
+caption= right|300px|alt=five women in bathing suits sitting on chairs|The third of a five-game test series against the Great Britain women's national water polo team on 25 February 2012. Australia won 15–6. On the far left is Knox, then Zoe Arancini, Melissa Rippon, Rowena Webster and Hannah Buckling.
+year from caption = 2012
+-----------------------------------
+54 Bruno_Peres
+birth year =  1990
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+55 Bungaro
+birth year =  1964
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+56 Calum_Turner
+birth year =  1997
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+57 Carl_Ablett
+birth year =  1985
+year from infobox caption=  None
+caption= left|Ablett playing for the Leeds Rhinos
+year from caption = None
+-----------------------------------
+58 Carlos_Lamela
+birth year =  1957
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+59 Carolina_Gudiño_Corro
+birth year =  1981
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+60 Cassie_McFarland
+birth year =  1985
+No file named "infobox_captions.json" found.
+caption= right|Final design of the 2014 National Baseball Hall of Fame commemorative coin.
+year from caption = 2014
+caption= right|The "well-loved" glove that served as a model for Cassie McFarland's design.
+year from caption = None
+-----------------------------------
+61 Cecilia_Zandalasini
+birth year =  1996
+year from infobox caption=  2024
+caption= Zandalasini with the Minnesota Lynx in 2018
+year from caption = 2018
+caption= Zandalasini with Fenerbahçe in 2019
+year from caption = 2019
+-----------------------------------
+62 Chaley_Rose
+birth year =  1986
+year from infobox caption=  2016
+No file named "captions.json" found.
+-----------------------------------
+63 Charles_Haddon-Cave
+birth year =  1956
+year from infobox caption=  None
+caption= right|Charles Haddon-Cave giving the keynote lecture at the Hazards 26 Conference in Edinburgh, 24 May 2016.
+year from caption = 2016
+-----------------------------------
+64 Charlotte_Bilbault
+birth year =  1990
+year from infobox caption=  2013
+No file named "captions.json" found.
+-----------------------------------
+65 Chioma_Goodhair
+birth year =  1989
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+66 Christian_Magdu
+birth year =  1977
+year from infobox caption=  2020
+No file named "captions.json" found.
+-----------------------------------
+67 Christofer_Fjellner
+birth year =  1976
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+68 Christos_Staikouras
+birth year =  1973
+year from infobox caption=  2016
+No file named "captions.json" found.
+-----------------------------------
+69 Claire_Newell
+No birth year found in "text.txt".
+No file named "infobox_captions.json" found.
+File "captions.json" is empty
+-----------------------------------
+70 Claudio_Maria_Celli
+birth year =  1941
+year from infobox caption=  2013
+No file named "captions.json" found.
+-----------------------------------
+71 Cody_Bolton
+birth year =  1998
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+72 Connie_Achurra
+birth year =  1977
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+73 Cory_Branan
+birth year =  1974
+year from infobox caption=  2015
+caption= Branan at The Whitewater Tavern (Little Rock, AR) New Year's Eve 2010
+year from caption = 2010
+caption= Branan at Rough Trade (Brooklyn,&nbsp;NY) February 2016
+year from caption = 2016
+caption= Branan at Gypsy Sally's (Washington,&nbsp;DC) October&nbsp;2015
+year from caption = 2015
+caption= Branan performing in 2015
+year from caption = 2015
+-----------------------------------
+74 Cristel_Gomez_Espinoza
+birth year =  1996
+No file named "infobox_captions.json" found.
+caption= Cristel Gomez's 2015 mugshot, used on wanted adverts by investigators
+year from caption = 2015
+caption= 301x301px|Cristel Gomez Espinoza while being arrested in 2019
+year from caption = 2019
+-----------------------------------
+75 Cyriac
+birth year =  1990
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+76 Dale_Steyn
+birth year =  1983
+year from infobox caption=  2009
+caption= Dale Steyn in the field at the SCG in January 2009
+year from caption = 2009
+caption= Steyn fields a ball at practice, Adelaide Oval, January 2009|368x368px
+year from caption = 2009
+-----------------------------------
+77 Dana_G._Peleg
+birth year =  1969
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+78 Daniel_Bigel
+birth year =  1965
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+79 Daniel_Leader
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+80 Daniel_Speers
+birth year =  1997
+year from infobox caption=  2015
+No file named "captions.json" found.
+-----------------------------------
+81 Danny_Heep
+birth year =  1957
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+82 Daren_King
+birth year =  1972
+year from infobox caption=  2009
+No file named "captions.json" found.
+-----------------------------------
+83 Dashon_Goldson
+birth year =  1984
+year from infobox caption=  2015
+caption= left|200px|Goldson at 49ers training camp in 2010.
+year from caption = 2010
+-----------------------------------
+84 David_A._Hidalgo
+birth year =  1952
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+85 David_Rivera
+birth year =  1965
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+86 Debbie_Ngarewa-Packer
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+87 Delio_Fernández
+birth year =  1986
+year from infobox caption=  2008
+No file named "captions.json" found.
+-----------------------------------
+88 Deniz_Aslan
+birth year =  1989
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+89 Detelin_Dalakliev
+birth year =  1983
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+90 Diana_Quick
+birth year =  1946
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+91 Dieynaba_Diop
+birth year =  1974
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+92 Disappearance_of_Brianna_Maitland
+birth year =  1986
+year from infobox caption=  None
+caption= left|190px|Black Lantern Inn, Maitland's workplace and the last place she was seen alive
+year from caption = None
+caption= upright=1|Brianna Maitland's vehicle as discovered on 20 March 2004
+year from caption = 2004
+-----------------------------------
+93 Doc_Hastings
+birth year =  1941
+year from infobox caption=  None
+caption= left|Official 109th Congressional photo
+year from caption = None
+caption= right|Earlier official photo of Hastings
+year from caption = None
+caption= right|Hastings during the 112th United States Congress
+year from caption = None
+-----------------------------------
+94 Donald_C._White
+birth year =  1950
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+95 Donnchadh_Walsh
+birth year =  1984
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+96 Doug_Frobel
+birth year =  1959
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+97 Drew_Sarich
+birth year =  1975
+year from infobox caption=  2019
+No file named "captions.json" found.
+-----------------------------------
+98 Dylan_McDermott
+birth year =  1961
+year from infobox caption=  2014
+caption= right|200px|McDermott at the 2012 PaleyFest
+year from caption = 2012
+-----------------------------------
+99 Ed_Galea
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+100 Eduardo_H._Garza
+birth year =  1978
+year from infobox caption=  None
+caption= Eduardo H. Garza shoots a scene for Legionario in Madrid, Spain
+year from caption = None
+-----------------------------------
+101 Einer_Rubio
+birth year =  1998
+year from infobox caption=  2021
+No file named "captions.json" found.
+-----------------------------------
+102 Elena_Kaliská
+birth year =  1972
+year from infobox caption=  2011
+No file named "captions.json" found.
+-----------------------------------
+103 Eliot_Spitzer
+birth year =  1959
+year from infobox caption=  2004
+caption= Spitzer celebrating on election night
+year from caption = None
+caption= left|Spitzer with Hillary Clinton in 2007
+year from caption = 2007
+-----------------------------------
+104 Ellen_Lohr
+birth year =  1965
+year from infobox caption=  None
+caption= Ellen Lohr - AMG-Mercedes C Klasse leads teammate Klaus Luwig at Melbourne Hairpin, 1994 DTM, Donington Park.
+year from caption = 1994
+-----------------------------------
+105 Elya_Chavez
+birth year =  1984
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+106 Emmy_Rossum
+birth year =  1986
+year from infobox caption=  2010
+caption= Rossum in 2011
+year from caption = 2011
+caption= upright|Rossum and her husband Sam Esmail in September 2018
+year from caption = 2018
+-----------------------------------
+107 Eric_Boschman
+birth year =  1964
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+108 Eric_Shinseki
+birth year =  1942
+year from infobox caption=  2009
+caption= left|upright|Shinseki at West Point in 1965
+year from caption = 1965
+caption= left|upright|Shinseki is pinned with the rank of general by Army chief of staff Dennis Reimer and his wife Patty in July 1997
+year from caption = 1997
+caption= left|upright|A 2003 portrait of Shinseki
+year from caption = 2003
+caption= right|President Barack Obama and guests at signing of bill to grant Congressional Gold Medal to 100th Infantry Battalion and 442nd Regimental Combat Team in recognition of their World War II service. Shinseki is at the far right.
+year from caption = None
+-----------------------------------
+109 Erin_McGreehan
+birth year =  1982
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+110 Estela_Doiro
+birth year =  1990
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+111 Eva_Klein
+birth year =  1925
+year from infobox caption=  1979
+No file named "captions.json" found.
+-----------------------------------
+112 Ewa_Ośniecka-Tamecka
+birth year =  1962
+year from infobox caption=  None
+caption= Legion Honneur Officier ribbon
+year from caption = None
+caption= Commander Ordre de Leopold
+year from caption = None
+caption= BEL Kroonorde Commandeur BAR
+year from caption = None
+-----------------------------------
+113 Fadhel_Jaziri
+birth year =  1948
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+114 Fatima_Bio
+birth year =  1980
+year from infobox caption=  2022
+No file named "captions.json" found.
+-----------------------------------
+115 Felix_Semper
+birth year =  1964
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+116 Filipe_Tohi
+birth year =  1959
+No file named "infobox_captions.json" found.
+caption= Untitled sculpture (2000, 2006) in The Square, Palmerston North
+year from caption = 2000
+caption= left|Hautaha outside the Onehunga Library in Auckland, New Zealand
+year from caption = None
+caption= Poutaha, 2014, Massey University, Wellington
+year from caption = 2014
+-----------------------------------
+117 Florian_Oßner
+birth year =  1980
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+118 Francisca_Gavilán
+birth year =  1973
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+119 Frank_Pasquale
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+120 François-Xavier_Bustillo
+birth year =  1968
+year from infobox caption=  2021
+No file named "captions.json" found.
+-----------------------------------
+121 Frederika_Menezes
+No birth year found in "text.txt".
+year from infobox caption=  2018
+No file named "captions.json" found.
+-----------------------------------
+122 Fumio_Takashima
+birth year =  1956
+No file named "infobox_captions.json" found.
+caption= Fumio Takashima, Francfranc CEO.
+year from caption = None
+-----------------------------------
+123 G._A._Chandrasiri
+birth year =  1954
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+124 Garry_L._Parks
+birth year =  1947
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+125 Gavin_Heffernan
+birth year =  1980
+year from infobox caption=  2007
+caption= SKYGLOW event at the Annenberg Photo Space in Los Angeles
+year from caption = None
+-----------------------------------
+126 Geoff_Nelder
+No birth year found in "text.txt".
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+127 Georgeta_Mincu
+birth year =  1971
+year from infobox caption=  2019
+No file named "captions.json" found.
+-----------------------------------
+128 Gerald_Wright
+birth year =  1942
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+129 Ghias_Barakat
+birth year =  1953
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+130 Gilberto_Milos
+birth year =  1963
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+131 Giorgi_Shashiashvili
+birth year =  1979
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+132 Glenn_D._Starkman
+birth year =  1962
+No file named "infobox_captions.json" found.
+caption= alt=Portrait photo of Glenn Starkmann|Portrait photo of Glenn Starkmann
+year from caption = None
+-----------------------------------
+133 Gonzalo_Aja
+birth year =  1946
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+134 Graeme_Harrison
+birth year =  1948
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+135 Greg_Keyte
+No birth year found in "text.txt".
+No file named "infobox_captions.json" found.
+caption= right|300px|Greg Keyte at Ham Polo Club
+year from caption = None
+-----------------------------------
+136 Grétar_Steinsson
+birth year =  1982
+year from infobox caption=  2007
+No file named "captions.json" found.
+-----------------------------------
+137 Gulab_Chand_Kataria
+birth year =  1944
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+138 Guus_Meeuwis
+birth year =  1972
+year from infobox caption=  2007
+caption= Guus Meeuwis in the Holland Heineken House in 2012.
+year from caption = 2012
+-----------------------------------
+139 Haifaa_al-Mansour
+No birth year found in "text.txt".
+year from infobox caption=  2011
+No file named "captions.json" found.
+-----------------------------------
+140 Hana_Hasanah_Shahab
+birth year =  1969
+year from infobox caption=  2014
+No file named "captions.json" found.
+-----------------------------------
+141 Hans-Peter_Gies
+birth year =  1947
+year from infobox caption=  1972
+No file named "captions.json" found.
+-----------------------------------
+142 Harry_Bähre
+birth year =  1941
+year from infobox caption=  2008
+No file named "captions.json" found.
+-----------------------------------
+143 Hassan_Kazemi_Qomi
+birth year =  1959
+year from infobox caption=  2020
+No file named "captions.json" found.
+-----------------------------------
+144 Heather_Nauert
+birth year =  1970
+year from infobox caption=  2017
+caption= Nauert addressing reporters at a State Department press briefing.
+year from caption = None
+caption= left|Nauert at the White House on July 25, 2017
+year from caption = 2017
+caption= Heather Nauert chatting with Secretary Pompeo at the Singapore Summit in 2018.
+year from caption = 2018
+caption= Acting Under Secretary Nauert Working Behind-the-Scenes at the Singapore Summit
+year from caption = None
+caption= Heather Nauert meeting with Secretary Pompeo and other top administration officials before leaving Mexico
+year from caption = None
+caption= Heather Nauert Speaking at a Press Conference in Bangladesh
+year from caption = None
+caption= Heather Nauert hosted the annual International Women of Courage (IWOC) Awards at the U.S. State Department on March 23, 2018.
+year from caption = 2018
+-----------------------------------
+145 Helen_Gleeson
+No birth year found in "text.txt".
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+146 Henry_de_Lesquen
+birth year =  1949
+year from infobox caption=  2017
+caption= upright|Logo of his ''National-liberal party''
+year from caption = None
+-----------------------------------
+147 Hiba_Abouk
+birth year =  1986
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+148 Hiroute_Guebre_Sellassie
+birth year =  1952
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+149 Horia_Brenciu
+birth year =  1972
+year from infobox caption=  None
+caption= Horia Brenciu at the Golden Stag Festival in 2008
+year from caption = 2008
+-----------------------------------
+150 Huang_Xiyang
+birth year =  1985
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+151 Hwang_Pyong-so
+birth year =  1949
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+152 Igor_Kolyvanov
+birth year =  1968
+year from infobox caption=  2017
+No file named "captions.json" found.
+-----------------------------------
+153 Ilmar_Taska
+birth year =  1953
+No file named "infobox_captions.json" found.
+caption= Ilmar Taska with his novel ''Pobeda 1946'' next to a Pobeda
+year from caption = 1946
+-----------------------------------
+154 Ingeborg_Hochmair
+birth year =  1953
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+155 Ireneusz_Raś
+birth year =  1972
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+156 Ivan_Ceresnjes
+birth year =  1945
+No file named "infobox_captions.json" found.
+caption= The grave of Rabbi Moshe Danon chief Rabbi of Sarajevo (1815-1830), Located in Stolac, Bosnia and Herzegovina
+year from caption = 1815
+-----------------------------------
+157 Iwan_Thomas
+birth year =  1974
+year from infobox caption=  2011
+caption= Iwan Thomas being interviewed after lighting the Olympic cauldron in Cambridge during the 2012 Summer Olympics torch relay.
+year from caption = 2012
+-----------------------------------
+158 Jackie_Plenderleith
+birth year =  1937
+year from infobox caption=  [1960 1969]
+No file named "captions.json" found.
+-----------------------------------
+159 Jacob_Soulliere
+No birth year found in "text.txt".
+File "infobox_captions.json" is empty
+No file named "captions.json" found.
+-----------------------------------
+160 Jair_Bolsonaro
+birth year =  1955
+File "infobox_captions.json" is empty
+caption= upright|Bolsonaro as Rio de Janeiro city councilor in March 1990. In October of the same year, he was elected Federal Deputy for the city
+year from caption = 1990
+caption= left|Bolsonaro supporters in London, October 2018
+year from caption = 2018
+caption= upright|Bolsonaro is known for his finger-gun gesture, which he used during the presidential campaign
+year from caption = None
+caption= The moment Bolsonaro was attacked at the Juiz de Fora rally
+year from caption = None
+caption= Michel Temer with Bolsonaro and his wife Michelle during the inauguration on 1 January 2019
+year from caption = 2019
+caption= left|Bolsonaro in 2020
+year from caption = 2020
+caption= Bolsonaro and Trump at the G20 meeting in 2019
+year from caption = 2019
+caption= left|Jair Bolsonaro and Paulo Guedes in Brasilia, 2020.
+year from caption = 2020
+caption= Bolsonaro and Orbán in Budapest, Hungary, in 2022
+year from caption = 2022
+caption= Bolsonaro in 2023 visiting the state of Paraná.
+year from caption = 2023
+caption= Bolsonaro supported the European Union–Mercosur Free Trade Agreement, which would form one of the world's largest free trade areas.
+year from caption = None
+caption= left|Bolsonaro and Charles, then Prince of Wales, in October 2019
+year from caption = 2019
+caption= right|Bolsonaro with former United Kingdom Prime Minister Boris Johnson, 20 September 2021
+year from caption = 2021
+caption= left|Bolsonaro with Chinese President Xi Jinping in October 2019
+year from caption = 2019
+caption= left|The deforestation rate in Brazil surged by 72% during Bolsonaro's time in office, reflecting that Amazon development was his key policy position.{{cite web|last1=Freedman|first1=Andrew|title=Bolsonaro's defeat is a climate turning point|url=https://www.axios.com/2022/10/31/brazil-lula-bolsonaro-climate-election|website=Axios|date=31 October 2022 |archive-url=https://web.archive.org/web/20221031134834/https://www.axios.com/2022/10/31/brazil-lula-bolsonaro-climate-election |archive-date=31 October 2022 |url-status=live}}{{cite web|title=Taxas de desmatamento (Deforestation rates)|url=http://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates|website=TerraBrasilis |archive-url=https://archive.today/20241211053835/https://terrabrasilis.dpi.inpe.br/app/dashboard/deforestation/biomes/legal_amazon/rates |archive-date=11 December 2024 |year=2024 |url-status=live}}
+year from caption = 2022
+caption= Bolsonaro arguing with federal deputy Maria do Rosário in the Chamber of Deputies, 14 September 2016
+year from caption = 2016
+caption= left|Gay Pride parade in São Paulo, June 2011
+year from caption = 2011
+caption= Bolsonaro and his son, Eduardo, together with fellow congressman Marco Feliciano, watching as a couple of protesters for LGBT rights kiss on the floor of the Committee on Culture of the Chamber of Deputies, May 2016
+year from caption = 2016
+caption= upright|Bolsonaro visits the Federal Senate, March 2016.
+year from caption = 2016
+caption= Bolsonaro with his two sons, Eduardo and Flávio, in the late 1980s
+year from caption = [1980 1989]
+caption= upright|Bolsonaro wearing several Brazilian orders, decorations and medals with white tie and the presidential sash during the enthronement ceremony of Japanese Emperor Naruhito, October 2019
+year from caption = 2019
+-----------------------------------
+161 Jamal_Hussein_Ali
+No birth year found in "text.txt".
+File "infobox_captions.json" is empty
+caption= left|100px|A Fading Shadow-Short Stories
+year from caption = None
+caption= 200px|With Yusuf Idris Baghdad – 1984
+year from caption = 1984
+caption= Jamal Hussein Ali – Baghdad 2003
+year from caption = 2003
+caption= Jamal Hussein Ali – Kabul 2001
+year from caption = 2001
+caption= With Rasul Gamzatov Moscow – 2000
+year from caption = 2000
+caption= Receiving the Arab Journalism Award – Dubai – 2005
+year from caption = 2005
+-----------------------------------
+162 James_Van_Der_Beek
+birth year =  1977
+year from infobox caption=  2023
+No file named "captions.json" found.
+-----------------------------------
+163 Jan_Bucquoy
+birth year =  1945
+year from infobox caption=  2003
+No file named "captions.json" found.
+-----------------------------------
+164 Jan_Harbeck
+birth year =  1975
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+165 Janove_Ottesen
+birth year =  1975
+year from infobox caption=  2005
+caption= Janove Ottesen, Kaizers Orchestra at Trans Musicales 2004 in Rennes
+year from caption = 2004
+-----------------------------------
+166 Jarosław_Gonciarz
+birth year =  1970
+No file named "infobox_captions.json" found.
+caption= Jarosław Gonciarz
+year from caption = None
+-----------------------------------
+167 Javier_Villa
+birth year =  1987
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+168 Jean-Benoît_Nadeau
+birth year =  1964
+No file named "infobox_captions.json" found.
+caption= Jean-Benoît Nadeau
+year from caption = None
+-----------------------------------
+169 Jeannine_Hall_Gailey
+birth year =  1973
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+170 Jen_Lancaster
+birth year =  1967
+No file named "infobox_captions.json" found.
+caption= Visiting Barnes & Noble Tribeca for ''Tao of Martha'' book signing, June 4, 2013.
+year from caption = 2013
+-----------------------------------
+171 Jenő_Schönberger
+birth year =  1959
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+172 Jeremy_Stover
+birth year =  1972
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+173 Jesper_Arvidsson
+birth year =  1985
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+174 Jess_L._Baily
+birth year =  1960
+year from infobox caption=  None
+caption= Ashton B. Carter and Jess Baily surveying the damage after the 2013 bombing attack
+year from caption = 2013
+-----------------------------------
+175 Jim_Tasikas
+birth year =  1975
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+176 Joan_Larsen
+birth year =  1968
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+177 Jodie_Grinham
+birth year =  1993
+File "infobox_captions.json" is empty
+caption= left|Grinham at the 2024 Summer Paralympics|300x300px
+year from caption = 2024
+-----------------------------------
+178 John_Kass
+birth year =  1956
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+179 Joëlle_Wintrebert
+birth year =  1949
+File "infobox_captions.json" is empty
+caption= Joëlle Wintrebert at the Utopiales in 2014.
+year from caption = 2014
+-----------------------------------
+180 Kelly_Khumalo
+birth year =  1984
+year from infobox caption=  None
+No file named "captions.json" found.
+-----------------------------------
+181 Ádám_Gyurcsó
+birth year =  1991
+year from infobox caption=  None
 No file named "captions.json" found.
 -----------------------------------
