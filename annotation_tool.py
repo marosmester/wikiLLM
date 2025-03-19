@@ -11,37 +11,12 @@ import os
 import webview
 import multiprocessing
 import json
-import copy
-import re
 from pathlib import Path
+from regex.helper_functions import find_birth_year, find_year_file, write_to_json
 
 def multiProcessWeb(link):
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
     webview.start()
-
-def find_year_file(fpath, pattern):
-    '''
-    Search any elligible file AS IT WAS A TXT FILE.
-    '''
-    with open(fpath, "r", encoding="UTF-8") as f:
-        content = f.read()
-    match = re.search(pattern, content)
-    return match
-
-def find_birth_year(path_to_person):
-    '''
-    Finds the person's birth year in the wikipedia body text file.
-    '''
-    # Get birth year from wiki main text
-    main_text = path_to_person / "text.txt"
-    pattern = r"Category:\b[12]\d{3}\b births" # 4 digit number beginning with a 1 or a 2
-    x = find_year_file(main_text, pattern)
-    if x is not None:
-        byear = int( x.group()[9:13] )           # extract birth yeat as int
-    else:
-        byear = None
-
-    return byear
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
     # Read the file as a numpy array of bytes
@@ -55,8 +30,9 @@ class AnnotationTool(tb.Window):
         super().__init__(title, themename, iconphoto, size, position, minsize, maxsize, resizable, hdpi, scaling, transient, overrideredirect, alpha)
 
         # Set the window size
-        self.state("zoomed")
-        
+        self.state("zoomed")                # works on Windows
+        #self.wm_attributes("-zoomed", True)  # works on Ubuntu
+
         # Set styles
         self.caption_font = ("Helvetica", 30, "bold")
         self.info_font = ("Helvetica", 16)
@@ -542,6 +518,7 @@ class AnnotationTool(tb.Window):
             self.getDataFromAnnotation()
             
             if(self.person_sub_index + 1 == len(self.data[self.person_index])):
+                write_to_json(self.data_from_annotation[self.person_index])     # write data to JSON
                 self.person_index += 1
                 self.person_sub_index = 0
             else:

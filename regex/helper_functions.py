@@ -4,8 +4,6 @@ import os
 from pathlib import Path
 import numpy as np
 
-# Maros 
-
 def find_birth_year(path_to_person):
     '''
     Finds the person's birth year in the wikipedia body text file.  
@@ -30,3 +28,22 @@ def find_year_file(fpath, pattern):
         content = f.read()
     match = re.search(pattern, content)
     return match
+
+def write_to_json(person_data):
+    '''
+    Writes person's annonation data to the corresponding json entry.
+    The written data resides in a separate json file.
+    
+    Args:
+        person_data (list[dictionary]): image-specific annotation data from annotation tool
+    '''
+    pathstring = (person_data[0]["path"].rsplit("/",2))[0]     # get only the path to the person folder
+    path_to_annotation = Path(pathstring) / "annotation.json"
+
+    jsonData = []
+    for img in person_data:
+        jsonData.append(img)
+
+    with open(path_to_annotation , "a") as f:
+        json.dump(jsonData, f, indent=4)
+
