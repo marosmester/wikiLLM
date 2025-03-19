@@ -132,3 +132,4 @@ if __name__ == "__main__":
             print(str(cnt) + ' ' + str(f), file= file)
             ret = analyze_person(subsetPath / f, file=file)
             cnt += 1
+
