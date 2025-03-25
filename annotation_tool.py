@@ -265,8 +265,19 @@ class AnnotationTool(tb.Window):
         #Build the default screen layout
         self.defaultScreenBuild()
     
-    def possToFullyAnnotateCallback(self) -> None:
-        if(self.checkbuttons["Pos_to_annote"].instate(["selected"])):
+    def impossToFullyAnnotateCallback(self) -> None:
+        """
+        Displays the next record in the database.
+        Returns:
+            None
+        """
+        Disabled = False
+        for _, button in self.checkbuttons.items():
+            if button.instance(["selected"]) == False:
+                Disabled = True
+                break
+
+        if(Disabled):
             self.texts["Pos_to_annote"].config(state="normal")
         else:
             self.texts["Pos_to_annote"].config(state="disabled")
