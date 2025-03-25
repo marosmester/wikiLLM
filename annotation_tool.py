@@ -16,11 +16,37 @@ from pathlib import Path
 from regex.helper_functions import find_birth_year
  
 def multiProcessWeb(link):
+    """
+    Creates and displays a webview window for the given link.
+    This function initializes a webview window with the specified link, 
+    sets its dimensions and position, and starts the webview using the GTK GUI framework.
+    Args:
+        link (str): The URL to be displayed in the webview window.
+    Notes:
+        - The window is titled "Wikipedia" and is set to always stay on top.
+        - The position of the window is slightly offset with x=-10 and y=-2.
+        - The dimensions of the window are 650 pixels wide and 840 pixels high.
+        - Requires the `webview` library to be installed and GTK to be available.
+    """
+    
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
     print("start wiki")
     webview.start(gui='gtk')
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
+    """
+    Reads an image from a file path that may contain Unicode characters.
+    This function handles file paths with Unicode characters by reading the file
+    as a numpy array of bytes and then decoding it into an image using OpenCV.
+    Args:
+        path (str): The file path to the image. Can include Unicode characters.
+        flags (int, optional): Flags specifying the color type of the loaded image.
+            Defaults to cv2.IMREAD_COLOR.
+    Returns:
+        numpy.ndarray: The decoded image as a NumPy array. Returns None if the image
+        cannot be decoded.
+    """
+    
     # Read the file as a numpy array of bytes
     data = np.fromfile(path, dtype=np.uint8)
     # Decode the image from the byte array
@@ -29,6 +55,59 @@ def imread_unicode(path, flags=cv2.IMREAD_COLOR):
 
 class AnnotationTool(tb.Window):
     def __init__(self, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
+        """
+        Initializes the Annotation Tool application with various configurations, widgets, and attributes.
+        Parameters:
+            title (str): The title of the application window. Defaults to "Annotation Tool".
+            themename (str): The theme name for the application. Defaults to "litera".
+            iconphoto (str): The file path to the icon image for the application. Defaults to an empty string.
+            size (tuple): The size of the application window (width, height). Defaults to None.
+            position (tuple): The position of the application window (x, y). Defaults to None.
+            minsize (tuple): The minimum size of the application window (width, height). Defaults to None.
+            maxsize (tuple): The maximum size of the application window (width, height). Defaults to None.
+            resizable (tuple): A tuple indicating whether the window is resizable (width, height). Defaults to None.
+            hdpi (bool): Whether to enable high DPI scaling. Defaults to True.
+            scaling (float): The scaling factor for the application. Defaults to None.
+            transient (bool): Whether the window is transient. Defaults to None.
+            overrideredirect (bool): Whether to override the window manager decorations. Defaults to False.
+            alpha (float): The transparency level of the window (0.0 to 1.0). Defaults to 1.
+        Attributes:
+            caption_font (tuple): Font settings for captions.
+            info_font (tuple): Font settings for informational text.
+            frames (dict): Dictionary to store frame widgets.
+            buttons (dict): Dictionary to store button widgets.
+            labels (dict): Dictionary to store label widgets.
+            entries (dict): Dictionary to store entry widgets.
+            texts (dict): Dictionary to store text widgets.
+            comboboxes (dict): Dictionary to store combobox widgets.
+            menus (dict): Dictionary to store menu widgets.
+            checkbuttons (dict): Dictionary to store checkbutton widgets.
+            IMAGE_NEXT (ImageTk.PhotoImage): Image for the "Next" button.
+            IMAGE_PREVIOUS (ImageTk.PhotoImage): Image for the "Previous" button.
+            image (Any): Placeholder for the current image.
+            caption (Any): Placeholder for the current caption.
+            name (Any): Placeholder for the person's name.
+            birth_day (Any): Placeholder for the person's birth day.
+            birth_month (Any): Placeholder for the person's birth month.
+            birth_year (Any): Placeholder for the person's birth year.
+            link (Any): Placeholder for the Wikipedia link.
+            scaling_factor (Any): Placeholder for the scaling factor.
+            bounding_box_index (Any): Placeholder for the bounding box index.
+            person_index (int): Index of the current person. Defaults to 0.
+            person_sub_index (int): Sub-index of the current person. Defaults to 0.
+            web_proc (Any): Placeholder for the web process.
+            data_from_annotation (Any): Placeholder for annotation data.
+            possible_to_annotate_birth (tk.IntVar): Variable to track if birth annotation is possible.
+            possible_to_annotate_creation (tk.IntVar): Variable to track if image creation annotation is possible.
+            possible_to_annotate_face (tk.IntVar): Variable to track if bounding box annotation is possible.
+            data (dict): Loaded data from the JSON database.
+        Methods:
+            nextRecord: Navigates to the next record.
+            previousRecord: Navigates to the previous record.
+            impossToFullyAnnotateCallback: Callback for handling incomplete annotations.
+            catRelatedImages: Categorizes related images.
+            defaultScreenBuild: Builds the default screen layout.
+        """
         super().__init__(title, themename, iconphoto, size, position, minsize, maxsize, resizable, hdpi, scaling, transient, overrideredirect, alpha)
 
         # Set the window size - platform specific workaround
@@ -36,10 +115,12 @@ class AnnotationTool(tb.Window):
             self.state("zoomed")  # works on Windows
         elif platform.system() == "Linux":
             self.wm_attributes("-zoomed", True)  # works on Ubuntu
+        #--------------------------------------------------------------------------------------------
 
-        # Set styles
+        # Set font styles
         self.caption_font = ("Helvetica", 30, "bold")
         self.info_font = ("Helvetica", 16)
+        #--------------------------------------------------------------------------------------------
         
         # Widget dictionaries initialization
         self.frames = {'Person_info_frame': {},
@@ -55,6 +136,7 @@ class AnnotationTool(tb.Window):
                            'Image_creation_frame_plus_pixel_pos': {}}
         self.menus = {}
         self.checkbuttons = {}
+        #--------------------------------------------------------------------------------------------
         
         # Class attributes initialization
         self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
@@ -75,68 +157,112 @@ class AnnotationTool(tb.Window):
         self.possible_to_annotate_birth = tk.IntVar(value=1)
         self.possible_to_annotate_creation = tk.IntVar(value=1)
         self.possible_to_annotate_face = tk.IntVar(value=1)
-                
+        #--------------------------------------------------------------------------------------------
+        
         # Create a frame
+        
+        #Left half of the screen
         self.frames["Image"] = tb.Frame(self, padding=10)
         self.frames["Caption"] = tb.Labelframe(self, text="Image caption", padding=10)
+        
+        #Right half of the screen
+        
+        #Main frames
         self.frames["Person_info_frame"]["MAIN"] = tb.Frame(self, padding=10)
-        #self.frames["Person_info_frame"]["Name"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Name", padding=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
+        self.frames["Annotation_fail"] = tb.LabelFrame(self, text="Annotation shortcomings", padding=10)
+        self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
+        
+        #Subframes
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
         self.frames["Person_info_frame"]["Wiki_link"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Link to Wikipedia website", padding=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Estimated year interval of image creation", padding=10)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Pixel position of the person", padding=10)
-        self.frames["Control_panel"] = tb.Labelframe(self, text="Control Panel", padding=10)
-        self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
-        self.frames["Annotation_fail"] = tb.LabelFrame(self, text="Annotation shortcomings", padding=10)
+        #---------------------------------------------------------------------------------------------
         
         # Create a label
+        
+        #Image
         self.labels["Image"] = tb.Label(self.frames["Image"])
+        
+        #Caption
         self.labels["Caption"] = tb.Label(self.frames["Caption"], font=self.caption_font)
+        
+        #Person name
         self.labels["Person_info_frame"]["Name"] = tb.Label(self, font=self.caption_font)
-        #self.labels["Person_info_frame"]["Birth"] = tb.Label(self.frames["Person_info_frame"]["Birth"], font=self.info_font)
+        
+        #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
+        
+        #Image creation frame
         self.labels["Image_creation_frame_plus_pixel_pos"][";"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text=";", font=self.info_font)
         self.labels["Image_creation_frame_plus_pixel_pos"]["("] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text="(", font=self.info_font)
         self.labels["Image_creation_frame_plus_pixel_pos"][")"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text=")", font=self.info_font)
+        
+        #Pixel position frame
         self.labels["Image_creation_frame_plus_pixel_pos"]["px"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], text="Click on the image", font=self.info_font, width=15)
+        
+        #Control panel
         self.labels["Control_panel"]["/"] = tb.Label(self.frames["Control_panel"], font=self.info_font)
-        self.labels["Pos_to_annote"] = tb.Label(self.frames["Pos_to_annote"], text="Impossible to fully annotate?", font=self.info_font, width=15)
+        #---------------------------------------------------------------------------------------------
         
         # Create a text widget
+        
+        #Caption
         self.texts["Caption"] = ScrolledText(self.frames["Caption"], font=self.info_font, height = 2, width=30, wrap= "word")
+        
+        #Annotation shortcomings
         self.texts["Pos_to_annote"] = tb.ScrolledText(self.frames["Annotation_fail"], font=self.info_font, height=4, width=30, wrap="word")
+        #---------------------------------------------------------------------------------------------
         
         # Create an entry widget
-        #self.entries["Person_info_frame"]["Name"] = tb.Entry(self.frames["Person_info_frame"]["Name"], font=self.info_font)
-        self.entries["Person_info_frame"]["Birth"] = tb.Entry(self.frames["Person_info_frame"]["Birth"], font=self.info_font, justify="center")
+                
+        #Control panel
         self.entries["Control_panel"]["LEFT"] = tb.Entry(self.frames["Control_panel"], font=self.info_font, width=2, justify="center")
         self.entries["Control_panel"]["RIGHT"] = tb.Entry(self.frames["Control_panel"], font=self.info_font, width=2, justify="center")
+        #---------------------------------------------------------------------------------------------
         
         #Create a combo box widget
+        
+        #Person birth frame
         self.comboboxes["Person_info_frame"]["Birth"]["Day"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values=[str(i) for i in range(1,32)], width=2, justify="right")
         self.comboboxes["Person_info_frame"]["Birth"]["Month"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values=["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], width=10, justify="right")
         self.comboboxes["Person_info_frame"]["Birth"]["Year"] = tb.Combobox(self.frames["Person_info_frame"]["Birth"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4, justify="right")
+        
+        #Image creation frame
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4, justify="right")
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"] = tb.Combobox(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], font=self.info_font, values= sorted([str(i) for i in range(1000,datetime.date.today().year + 1)], reverse=True),width=4, justify="right")
+        #---------------------------------------------------------------------------------------------
         
         #Create a button widget
+        
+        #Control panel buttons
         self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecord , padding=10, width=100, takefocus=False)
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
+        #---------------------------------------------------------------------------------------------
         
         #Create a checkbutton widget
-        self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_creation)
-        self.checkbuttons["Birth"] = tb.Checkbutton(self.frames["Person_info_frame"]["Birth"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_birth)
-        self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_face)
+        
+        #Person birth frame
+        self.checkbuttons["Birth"] = tb.Checkbutton(self.frames["Person_info_frame"]["Birth"], width=3, bootstyle = "round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_birth)
 
+        #Image creation frame
+        self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_creation)
+        
+        #Pixel position frame
+        self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_face)
+        
+        #---------------------------------------------------------------------------------------------
+        
         #Load database
         with open("data1.json", "r") as file:
             self.data = json.load(file)
         
+        #Reorder the data
         self.catRelatedImages()
+        #---------------------------------------------------------------------------------------------
         
-        #Create a menu widget
-        self.menus["Next_or_prev"] = tb.Menu(self)
+        #Build the default screen layout
         self.defaultScreenBuild()
     
     def impossToFullyAnnotateCallback(self) -> None:
@@ -283,9 +409,7 @@ class AnnotationTool(tb.Window):
             str: The Wikipedia link.
         """
         self.link = self.data[self.person_index][self.person_sub_index]["url"]
-        #self.labels["Wiki_link"].config(text=self.link)
-        
-    
+            
     def openWiki(self, event, link: str) -> None:
         """
         Opens a Wikipedia page in the default web browser.
@@ -588,59 +712,6 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        """
-        list_of_errors = ["Birth day is not filled!",
-                          "Birth day is not integer in the range 1-31!",
-                          "Birth month is not filled!",
-                          "Birth month is not integer in the range 1-12 or its name is written incorrectly!",
-                          "Birth year is not filled!",
-                          "Birth year is not integer lower than the current year!",
-                          "Estimated year of image creation (left boundary) is not filled!",
-                          "Estimated year of image creation (left boundary) is not integer lower than the current year!",
-                          "Estimated year of image creation (right boundary) is not filled!",
-                          "Estimated year of image creation (right boundary) is not integer lower than the current year!",
-                          "Pixel position is not filled!"]
-        
-        list_or_errors_vals = [False, False, False, False, False, False, False, False, False, False, False]
-        list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
-        
-        birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
-        birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
-        birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
-        estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
-        estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
-        pixel_position = self.pixel_position
-        
-        if birth_day == "":
-            list_or_errors_vals[0] = True
-        if not birth_day.isdigit() or int(birth_day) not in range(1,32):
-            list_or_errors_vals[1] = True
-        if birth_month == "":
-            list_or_errors_vals[2] = True
-        if not birth_month.isdigit() and birth_month.lower() not in list_of_month_names:
-            list_or_errors_vals[3] = True
-        if birth_month.isdigit() and int(birth_month) not in range(1,13):
-            list_or_errors_vals[3] = True
-        if birth_year == "":
-            list_or_errors_vals[4] = True
-        if not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[5] = True
-        if estimated_year_creation_left == "":
-            list_or_errors_vals[6] = True
-        if not estimated_year_creation_left.isdigit() or int(estimated_year_creation_left) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[7] = True
-        if estimated_year_creation_right == "":
-            list_or_errors_vals[8] = True
-        if not estimated_year_creation_right.isdigit() or int(estimated_year_creation_right) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[9] = True
-        if pixel_position == (None, None):
-            list_or_errors_vals[10] = True
-        """
-        """
-        if any(list_or_errors_vals):
-            self.openPopup(list_of_errors, list_or_errors_vals)
-        else:
-        """
         
         if(self.person_sub_index == 0):
             if(self.person_index != 0):
@@ -700,7 +771,6 @@ class AnnotationTool(tb.Window):
         self.readImage()
         self.readPersonInfo()
         
-        #self.labels["Image"].config(image=self.image)
         self.labels["Image"].place(relx=0.5, rely=0.5, anchor="center")
         self.labels["Image"].bind("<Button-1>", self.printPixelPosition)
         
@@ -708,7 +778,6 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].pack(fill="both", expand=True)
         self.texts["Caption"].config(state="disabled")
         
-        #self.labels["Person_info_frame"]["Name"].config(text = self.name)
         self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
         
         # Place the person info frames
@@ -717,16 +786,10 @@ class AnnotationTool(tb.Window):
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(0, weight=5)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(1, weight=1)
         
-        #self.frames["Person_info_frame"]["Name"].grid(row=0, column=0, sticky="ew", padx=10)
         self.frames["Person_info_frame"]["Birth"].grid(row=0, column=1, sticky="ew", padx=10)
         
         # Update and place the person info entries
-        
-        #self.frames["Person_info_frame"]["Name"].grid_rowconfigure(0, weight=1)
-        #self.frames["Person_info_frame"]["Name"].grid_columnconfigure(0, weight=1)
-        
-        #self.entries["Person_info_frame"]["Name"].grid(row=0, column=0, sticky="ew")
-        
+            
         self.frames["Person_info_frame"]["Birth"].grid_rowconfigure(0, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(0, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(1, weight=1)
@@ -767,7 +830,6 @@ class AnnotationTool(tb.Window):
         self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 21)
         
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=10)
-        #self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].set("0")
         self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, sticky="ew", padx=10)
         
         
@@ -812,7 +874,6 @@ class AnnotationTool(tb.Window):
         self.frames["Pos_to_annote"].grid_columnconfigure(1, weight=1)
         
         self.labels["Pos_to_annote"].grid(row=0, column=0, padx=10, ipadx = 60, sticky="nse")
-        #self.checkbuttons["Pos_to_annote"].grid(row=0, column=1, padx=10, sticky="w", ipadx=10)
         
         # Update and place the annotation shortcomings widgets
         self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
