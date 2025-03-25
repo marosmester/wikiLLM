@@ -11,12 +11,14 @@ import os
 import webview
 import multiprocessing
 import json
+import platform
 from pathlib import Path
 from regex.helper_functions import find_birth_year, find_year_file, write_to_json
-
+ 
 def multiProcessWeb(link):
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
-    webview.start()
+    print("start wiki")
+    webview.start(gui='gtk')
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
     # Read the file as a numpy array of bytes
@@ -29,9 +31,11 @@ class AnnotationTool(tb.Window):
     def __init__(self, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
         super().__init__(title, themename, iconphoto, size, position, minsize, maxsize, resizable, hdpi, scaling, transient, overrideredirect, alpha)
 
-        # Set the window size
-        self.state("zoomed")                # works on Windows
-        #self.wm_attributes("-zoomed", True)  # works on Ubuntu
+        # Set the window size - platform specific workaround
+        if platform.system() == "Windows":
+            self.state("zoomed")  # works on Windows
+        elif platform.system() == "Linux":
+            self.wm_attributes("-zoomed", True)  # works on Ubuntu
 
         # Set styles
         self.caption_font = ("Helvetica", 30, "bold")
@@ -68,7 +72,8 @@ class AnnotationTool(tb.Window):
         self.person_sub_index = 0
         self.web_proc = None
         self.data_from_annotation = None
-        self.impossible_to_fully_annotate_var = tk.IntVar(value=0)
+        self.impossible_to_annotate_birth = tk.IntVar(value=0)
+        self.impossible_to_annotate_creation = tk.IntVar(value=0)
                 
         # Create a frame
         self.frames["Image"] = tb.Frame(self, padding=10)
@@ -119,8 +124,9 @@ class AnnotationTool(tb.Window):
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
         
         #Create a checkbutton widget
-        self.checkbuttons["Pos_to_annote"] = tb.Checkbutton(self.frames["Pos_to_annote"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_fully_annotate_var)
-        
+        self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_annotate_creation)
+        self.checkbuttons["Birth"] = tb.Checkbutton(self.frames["Person_info_frame"]["Birth"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_annotate_birth)
+
         #Load database
         with open("data1.json", "r") as file:
             self.data = json.load(file)
@@ -693,17 +699,24 @@ class AnnotationTool(tb.Window):
         
         #self.entries["Person_info_frame"]["Name"].grid(row=0, column=0, sticky="ew")
         
+        self.frames["Person_info_frame"]["Birth"].grid_rowconfigure(0, weight=1)
+        self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(0, weight=1)
+        self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(1, weight=1)
+        self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(2, weight=1)
+        self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(3, weight=1)
+
         
         self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=10)
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=10)
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=10)
+        self.checkbuttons["Birth"].grid(row=0, column=3, padx=10)
         
         # Place and update the image creation frame and pixel position frame
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=5)
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew", padx=0)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew", ipadx=150)
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(0, weight=1)
@@ -711,6 +724,8 @@ class AnnotationTool(tb.Window):
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(2, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(3, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(4, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(5, weight=1)
+
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(0, weight=1)
@@ -721,6 +736,7 @@ class AnnotationTool(tb.Window):
         self.labels["Image_creation_frame_plus_pixel_pos"][";"].grid(row=0, column=2, padx=22)
         self.labels["Image_creation_frame_plus_pixel_pos"]["("].grid(row=0, column=0, padx=21)
         self.labels["Image_creation_frame_plus_pixel_pos"][")"].grid(row=0, column=4, padx=21)
+        self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 21)
         
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=10)
         #self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Uncertainty"].set("0")
@@ -768,7 +784,7 @@ class AnnotationTool(tb.Window):
         self.frames["Pos_to_annote"].grid_columnconfigure(1, weight=1)
         
         self.labels["Pos_to_annote"].grid(row=0, column=0, padx=10, ipadx = 60, sticky="nse")
-        self.checkbuttons["Pos_to_annote"].grid(row=0, column=1, padx=10, sticky="w", ipadx=10)
+        #self.checkbuttons["Pos_to_annote"].grid(row=0, column=1, padx=10, sticky="w", ipadx=10)
         
         # Update and place the annotation shortcomings widgets
         self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)

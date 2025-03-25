@@ -44,6 +44,6 @@ def write_to_json(person_data):
     for img in person_data:
         jsonData.append(img)
 
-    with open(path_to_annotation , "a") as f:
+    with open(path_to_annotation , "w") as f:
         json.dump(jsonData, f, indent=4)
 
