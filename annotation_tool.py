@@ -170,8 +170,9 @@ class AnnotationTool(tb.Window):
         #Main frames
         self.frames["Person_info_frame"]["MAIN"] = tb.Frame(self, padding=10)
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
-        self.frames["Annotation_fail"] = tb.LabelFrame(self, text="Annotation shortcomings", padding=10)
+        self.frames["Annotation_fail"] = tb.Labelframe(self, text="Annotation shortcomings", padding=10)
         self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
+        self.frames["Control_panel"] = tb.Labelframe(self, padding=10)
         
         #Subframes
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
@@ -872,8 +873,6 @@ class AnnotationTool(tb.Window):
         self.frames["Pos_to_annote"].grid_rowconfigure(0, weight=1)
         self.frames["Pos_to_annote"].grid_columnconfigure(0, weight=1)
         self.frames["Pos_to_annote"].grid_columnconfigure(1, weight=1)
-        
-        self.labels["Pos_to_annote"].grid(row=0, column=0, padx=10, ipadx = 60, sticky="nse")
         
         # Update and place the annotation shortcomings widgets
         self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
