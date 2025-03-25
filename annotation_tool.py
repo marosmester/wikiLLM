@@ -265,7 +265,7 @@ class AnnotationTool(tb.Window):
         #Build the default screen layout
         self.defaultScreenBuild()
     
-    def impossToFullyAnnotateCallback(self) -> None:
+    def possToFullyAnnotateCallback(self) -> None:
         """
         Displays the next record in the database.
         Returns:
