@@ -13,7 +13,7 @@ import multiprocessing
 import json
 import platform
 from pathlib import Path
-from regex.helper_functions import find_birth_year, find_year_file, write_to_json
+from regex.helper_functions import find_birth_year
  
 def multiProcessWeb(link):
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
@@ -72,8 +72,9 @@ class AnnotationTool(tb.Window):
         self.person_sub_index = 0
         self.web_proc = None
         self.data_from_annotation = None
-        self.impossible_to_annotate_birth = tk.IntVar(value=1)
-        self.impossible_to_annotate_creation = tk.IntVar(value=1)
+        self.possible_to_annotate_birth = tk.IntVar(value=1)
+        self.possible_to_annotate_creation = tk.IntVar(value=1)
+        self.possible_to_annotate_face = tk.IntVar(value=1)
                 
         # Create a frame
         self.frames["Image"] = tb.Frame(self, padding=10)
@@ -124,8 +125,9 @@ class AnnotationTool(tb.Window):
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
         
         #Create a checkbutton widget
-        self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_annotate_creation)
-        self.checkbuttons["Birth"] = tb.Checkbutton(self.frames["Person_info_frame"]["Birth"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.impossible_to_annotate_birth)
+        self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_creation)
+        self.checkbuttons["Birth"] = tb.Checkbutton(self.frames["Person_info_frame"]["Birth"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_birth)
+        self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle = "round-toggle", command=self.impossToFullyAnnotateCallback, variable=self.possible_to_annotate_face)
 
         #Load database
         with open("data1.json", "r") as file:
@@ -145,13 +147,14 @@ class AnnotationTool(tb.Window):
         """
         Disabled = False
         for _, button in self.checkbuttons.items():
-            if button.instance(["selected"]) == False:
+            if button.instate(["selected"]) == False:
                 Disabled = True
                 break
 
         if(Disabled):
             self.texts["Pos_to_annote"].config(state="normal")
         else:
+            self.texts["Pos_to_annote"].delete("1.0", tk.END)
             self.texts["Pos_to_annote"].config(state="disabled")
     
     def catRelatedImages(self) -> None:
@@ -398,31 +401,30 @@ class AnnotationTool(tb.Window):
         birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
         estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
-        impossible_to_annote = self.checkbuttons["Pos_to_annote"].instate(["selected"])
+        birthday_checkbox = self.checkbuttons["Birth"].instate(["selected"])
+        figure_checkbox = self.checkbuttons["Creation"].instate(["selected"])
+        face_checkbox = self.checkbuttons["Face"].instate(["selected"])
         anootation_shortcommings = self.texts["Pos_to_annote"].get("1.0", "end")
         bounding_box_index = self.bounding_box_index
         path = self.data[self.person_index][self.person_sub_index]["path"]
-        
+
+        dataDict = {"path": path,
+                    "fully_annotated": birthday_checkbox and figure_checkbox and face_checkbox,
+                    "birthday_annotated": birthday_checkbox,
+                    "figure_year_annotated": figure_checkbox,
+                    "face_found": face_checkbox,
+                    "birth_day": birth_day,
+                    "birth_month": birth_month,
+                    "birth_year": birth_year,
+                    "estimated_year_creation_left": estimated_year_creation_left,
+                    "estimated_year_creation_right": estimated_year_creation_right,
+                    "annotation_shortcommings": anootation_shortcommings,
+                    "bounding_box_index": bounding_box_index}
+
         if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
-            self.data_from_annotation[self.person_index][self.person_sub_index] = {"path": path,
-                                                                                   "birth_day": birth_day,
-                                                                                   "birth_month": birth_month,
-                                                                                   "birth_year": birth_year,
-                                                                                   "estimated_year_creation_left": estimated_year_creation_left,
-                                                                                   "estimated_year_creation_right": estimated_year_creation_right,
-                                                                                   "impossible_to_annote": impossible_to_annote,
-                                                                                   "annotation_shortcommings": anootation_shortcommings,
-                                                                                   "bounding_box_index": bounding_box_index}
+            self.data_from_annotation[self.person_index][self.person_sub_index] = dataDict
         else:
-            self.data_from_annotation[self.person_index].append({"path": path,
-                                                                 "birth_day": birth_day,
-                                                                 "birth_month": birth_month,
-                                                                 "birth_year": birth_year,
-                                                                 "estimated_year_creation_left": estimated_year_creation_left,
-                                                                 "estimated_year_creation_right": estimated_year_creation_right,
-                                                                 "impossible_to_annote": impossible_to_annote,
-                                                                 "annotation_shortcommings": anootation_shortcommings,
-                                                                 "bounding_box_index": bounding_box_index})
+            self.data_from_annotation[self.person_index].append(dataDict)
         
         
     def removeDataFromAnnotationWidgets(self) -> None:
@@ -437,7 +439,9 @@ class AnnotationTool(tb.Window):
             self.comboboxes["Person_info_frame"]["Birth"]["Year"].set("")
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
-            self.impossible_to_fully_annotate_var.set(0)
+            self.possible_to_annotate_birth.set(1)
+            self.possible_to_annotate_creation.set(1)
+            self.possible_to_annotate_face.set(1)
             self.texts["Pos_to_annote"].config(state="normal")
             self.texts["Pos_to_annote"].delete("1.0", "end")
             self.texts["Pos_to_annote"].config(state="disabled")
@@ -446,7 +450,9 @@ class AnnotationTool(tb.Window):
         else:
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
-            self.impossible_to_fully_annotate_var.set(0)
+            self.possible_to_annotate_birth.set(1)
+            self.possible_to_annotate_creation.set(1)
+            self.possible_to_annotate_face.set(1)
             self.texts["Pos_to_annote"].config(state="normal")
             self.texts["Pos_to_annote"].delete("1.0", "end")
             self.texts["Pos_to_annote"].config(state="disabled")
@@ -482,7 +488,23 @@ class AnnotationTool(tb.Window):
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was picked!")
         else:
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-                    
+
+    def write_to_json(self) -> None:
+        '''
+        Writes person's annonation data to the corresponding json entry.
+        The written data resides in a separate json file.
+        '''
+        person_data = self.data_from_annotation[self.person_index]  # one person can include multiple images
+        pathstring = (person_data[0]["path"].rsplit("/",2))[0]      # get only the path to the person folder
+        path_to_annotation = Path(pathstring) / "annotation.json"
+
+        jsonData = []
+        for img in person_data:
+            jsonData.append(img)
+
+        with open(path_to_annotation , "w") as f:
+            json.dump(jsonData, f, indent=4)
+
     def nextRecord(self) -> None:
         """
         Displays the next record in the database.
@@ -530,7 +552,7 @@ class AnnotationTool(tb.Window):
             self.getDataFromAnnotation()
             
             if(self.person_sub_index + 1 == len(self.data[self.person_index])):
-                write_to_json(self.data_from_annotation[self.person_index])     # write data to JSON
+                self.write_to_json()     # write data to JSON
                 self.person_index += 1
                 self.person_sub_index = 0
             else:
