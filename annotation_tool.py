@@ -72,8 +72,8 @@ class AnnotationTool(tb.Window):
         self.person_sub_index = 0
         self.web_proc = None
         self.data_from_annotation = None
-        self.impossible_to_annotate_birth = tk.IntVar(value=0)
-        self.impossible_to_annotate_creation = tk.IntVar(value=0)
+        self.impossible_to_annotate_birth = tk.IntVar(value=1)
+        self.impossible_to_annotate_creation = tk.IntVar(value=1)
                 
         # Create a frame
         self.frames["Image"] = tb.Frame(self, padding=10)
@@ -143,7 +143,13 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        if(self.checkbuttons["Pos_to_annote"].instate(["selected"])):
+        Disabled = False
+        for _, button in self.checkbuttons.items():
+            if button.instance(["selected"]) == False:
+                Disabled = True
+                break
+
+        if(Disabled):
             self.texts["Pos_to_annote"].config(state="normal")
         else:
             self.texts["Pos_to_annote"].config(state="disabled")
