@@ -74,6 +74,7 @@ class AnnotationTool(tb.Window):
         self.data_from_annotation = None
         self.impossible_to_annotate_birth = tk.IntVar(value=0)
         self.impossible_to_annotate_creation = tk.IntVar(value=0)
+        self.impo
                 
         # Create a frame
         self.frames["Image"] = tb.Frame(self, padding=10)
@@ -713,10 +714,10 @@ class AnnotationTool(tb.Window):
         
         # Place and update the image creation frame and pixel position frame
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=5)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=8)
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew", ipadx=150)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew")
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(0, weight=1)
