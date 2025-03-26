@@ -104,7 +104,7 @@ class AnnotationTool(tb.Window):
         Methods:
             nextRecord: Navigates to the next record.
             previousRecord: Navigates to the previous record.
-            impossToFullyAnnotateCallback: Callback for handling incomplete annotations.
+            possToFullyAnnotateCallback: Callback for handling incomplete annotations.
             catRelatedImages: Categorizes related images.
             defaultScreenBuild: Builds the default screen layout.
         """
@@ -551,7 +551,6 @@ class AnnotationTool(tb.Window):
             None
         """
         # Create a new popup window (Toplevel)
-        
         popup = tb.Toplevel(self)
         popup.title("Error")
         popup_width = 800
@@ -763,8 +762,8 @@ class AnnotationTool(tb.Window):
         else:
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
 
+    """
     def write_to_json(self) -> None:
-        """
         Writes annotation data for a specific person to a JSON file.
         This method retrieves annotation data for the currently selected person,
         constructs a JSON file containing the data, and saves it to the person's
@@ -783,7 +782,6 @@ class AnnotationTool(tb.Window):
               `self.data_from_annotation`.
             - The path to the person's folder is derived from the "path" key in the first
               dictionary of the person's data.
-        """
         
         person_data = self.data_from_annotation[self.person_index]  # one person can include multiple images
         pathstring = (person_data[0]["path"].rsplit("/",2))[0]      # get only the path to the person folder
@@ -795,6 +793,39 @@ class AnnotationTool(tb.Window):
 
         with open(path_to_annotation , "w") as f:
             json.dump(jsonData, f, indent=4)
+"""
+
+    def write_annot_to_json(self):
+        """
+        Writes the annotation of the current image to the database.
+        """
+        image_annotation = self.data_from_annotation[self.person_index][self.person_sub_index]
+        pathstring = (image_annotation["path"].rsplit("/",2))[0]      # get only the path to the person folder
+        path_to_annotation = Path(pathstring) / "annotation.json"
+
+        # try to open and read the person's annotation file
+        try:
+            with open(path_to_annotation, 'r') as f:
+                jsonData = json.load(f)
+        except FileNotFoundError:
+            jsonData = []  
+
+        # if annotation.json has older image annotaion, delete it: 
+        if jsonData != []:
+            idx = None
+            for i in range( len(jsonData) ):
+                if jsonData[i]["path"] == image_annotation["path"]:
+                    idx = i
+                    break
+            if idx != None:
+                jsonData.pop(idx)
+
+        # append the new annotation to jsonData:
+        jsonData.append(image_annotation)
+
+        with open(path_to_annotation , "w") as f:
+            json.dump(jsonData, f, indent=4)
+
 
     def nextRecord(self) -> None:
         """
@@ -836,9 +867,10 @@ class AnnotationTool(tb.Window):
                           "Estimated year of image creation (left boundary) is not filled or is not an integer lower than the current year!",
                           "Estimated year of image creation (right boundary) is not filled or is not an integer lower than the current year!",
                           "Estimated year of image creation (right boundary) is lower than its (left boundary)!",
-                          "Bounding box was not picked or multiple bounding boxes were picked!"]
+                          "Bounding box was not picked or multiple bounding boxes were picked!",
+                          "Annotation shortcomings are not specified."]
         
-        list_or_errors_vals = [False, False, False, False, False, False, False]
+        list_of_errors_vals = [False for i in range(len(list_of_errors))]
         list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
         
         birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
@@ -847,34 +879,43 @@ class AnnotationTool(tb.Window):
         estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
         bounding_box = self.bounding_box_index
-        
-        if not birth_day.isdigit() or int(birth_day) not in range(1,32):
-            list_or_errors_vals[0] = True
-        if not birth_month.isdigit() and birth_month.lower() not in list_of_month_names:
-            list_or_errors_vals[1] = True
-        if birth_month.isdigit() and int(birth_month) not in range(1,13):
-            list_or_errors_vals[1] = True
-        if not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[2] = True
-        if estimated_year_creation_left == "" or not estimated_year_creation_left.isdigit() or int(estimated_year_creation_left) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[3] = True
-        if estimated_year_creation_right == "" or not estimated_year_creation_right.isdigit() or int(estimated_year_creation_right) not in range(datetime.date.today().year + 1):
-            list_or_errors_vals[4] = True
-        if estimated_year_creation_left.isdigit() and estimated_year_creation_right.isdigit() and int(estimated_year_creation_right) < int(estimated_year_creation_left):
-            list_or_errors_vals[5] = True
-        if bounding_box == None:
-            list_or_errors_vals[6] = True
-        
-        if any(list_or_errors_vals) and not self.checkbuttons["Pos_to_annote"].instate(["selected"]):
-            self.openPopup(list_of_errors, list_or_errors_vals)
+        creation_checked, birth_checked, face_checked = (self.checkbuttons["Creation"].instate(["selected"]),
+                                                        self.checkbuttons["Birth"].instate(["selected"]),
+                                                        self.checkbuttons["Face"].instate(["selected"]))
+
+        if birth_checked and (not birth_day.isdigit() or int(birth_day) not in range(1,32)):
+            list_of_errors_vals[0] = True
+        if birth_checked and (not birth_month.isdigit() and birth_month.lower() not in list_of_month_names):
+            list_of_errors_vals[1] = True
+        if birth_checked and (birth_month.isdigit() and int(birth_month) not in range(1,13)):
+            list_of_errors_vals[1] = True
+        if birth_checked and (not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[2] = True
+        if creation_checked and (estimated_year_creation_left == "" or not estimated_year_creation_left.isdigit() or int(estimated_year_creation_left) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[3] = True
+        if creation_checked and (estimated_year_creation_right == "" or not estimated_year_creation_right.isdigit() or int(estimated_year_creation_right) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[4] = True
+        if creation_checked and (estimated_year_creation_left.isdigit() and estimated_year_creation_right.isdigit() and int(estimated_year_creation_right) < int(estimated_year_creation_left)):
+            list_of_errors_vals[5] = True
+        if face_checked and bounding_box == None:
+            list_of_errors_vals[6] = True
+        all_selected = (birth_checked and creation_checked and face_checked)
+        if not all_selected and not self.texts["Pos_to_annote"].get("1.0", "end-1c").strip():    # checks is ScrolledText is empty 
+            list_of_errors_vals[7] = True
+
+        if any(list_of_errors_vals) and (all_selected):
+            self.openPopup(list_of_errors, list_of_errors_vals)
+        elif not all_selected and any(list_of_errors_vals):
+            self.openPopup(list_of_errors, list_of_errors_vals)
         else:
             self.getDataFromAnnotation()
             
             if(self.person_sub_index + 1 == len(self.data[self.person_index])):
-                self.write_to_json()     # write data to JSON
+                self.write_annot_to_json()     # write data to JSON
                 self.person_index += 1
                 self.person_sub_index = 0
             else:
+                self.write_annot_to_json()  # write data to JSON
                 self.person_sub_index += 1
             
             self.entries["Control_panel"]["LEFT"].config(state="normal")
