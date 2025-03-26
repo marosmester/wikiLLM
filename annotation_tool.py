@@ -172,7 +172,7 @@ class AnnotationTool(tb.Window):
         self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
         self.frames["Annotation_fail"] = tb.Labelframe(self, text="Annotation shortcomings", padding=10)
         self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
-        self.frames["Control_panel"] = tb.Labelframe(self, padding=10)
+        self.frames["Control_panel"] = tb.Labelframe(self, padding=10, text="Control panel")
         
         #Subframes
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
@@ -213,7 +213,7 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"] = ScrolledText(self.frames["Caption"], font=self.info_font, height = 2, width=30, wrap= "word")
         
         #Annotation shortcomings
-        self.texts["Pos_to_annote"] = tb.ScrolledText(self.frames["Annotation_fail"], font=self.info_font, height=4, width=30, wrap="word")
+        self.texts["Pos_to_annote"] = tb.ScrolledText(self.frames["Annotation_fail"], font=self.info_font, height=7, width=30, wrap="word")
         #---------------------------------------------------------------------------------------------
         
         # Create an entry widget
@@ -239,7 +239,9 @@ class AnnotationTool(tb.Window):
         
         #Control panel buttons
         self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecord , padding=10, width=100, takefocus=False)
-        self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=100, takefocus=False)
+        self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=10, takefocus=False)
+        self.buttons["Save"] = tb.Button(self.frames["Control_panel"], command=self.getDataFromAnnotation, padding=10, width=10, takefocus=False)
+        self.buttons["Skip_to_the_first_unannotated"] = tb.Button(self.frames["Control_panel"], command=self.skipToFirstUnannotated, padding=10, width=10, takefocus=False)
         #---------------------------------------------------------------------------------------------
         
         #Create a checkbutton widget
@@ -268,10 +270,16 @@ class AnnotationTool(tb.Window):
     
     def possToFullyAnnotateCallback(self) -> None:
         """
-        Displays the next record in the database.
+        Callback function to handle the state of the "Pos_to_annote" text widget 
+        based on the selection state of checkbuttons.
+        This function iterates through all checkbuttons in the `self.checkbuttons` 
+        dictionary. If any checkbutton is not in the "selected" state, it enables 
+        the "Pos_to_annote" text widget for editing. Otherwise, it clears the 
+        content of the "Pos_to_annote" text widget and disables it.
         Returns:
             None
         """
+        
         Disabled = False
         for _, button in self.checkbuttons.items():
             if button.instate(["selected"]) == False:
@@ -286,10 +294,16 @@ class AnnotationTool(tb.Window):
     
     def catRelatedImages(self) -> None:
         """
-        Concatenates images of the same person.
+        Groups related images in the dataset based on the person identifier in their file paths.
+        This method processes the `self.data` list, which contains dictionaries with image metadata,
+        and organizes the images into groups where each group corresponds to a unique person identifier
+        extracted from the file path. The grouped data is then reassigned to `self.data`.
+        The file path is expected to have the format where the person identifier is the third element
+        when split by the "/" character.
         Returns:
             None
         """
+        
         last_person = None
         new_data = []
         index = -1
@@ -309,12 +323,22 @@ class AnnotationTool(tb.Window):
                     
     def readCaption(self) -> None:
         """
-        Reads a caption from a file and assigns it to the instance variable `self.caption`.
-        Args:
-            captionID (int, optional): The ID of the caption to read. Defaults to 1.
-        Returns:
-            None
+        Reads the caption for the current person and sub-index from the data structure
+        and updates the corresponding text widget in the GUI.
+        If the caption is `None`, it sets the caption to an empty string. Otherwise,
+        it retrieves the caption from the data structure. The method then updates
+        the "Caption" text widget by enabling it, clearing its current content,
+        inserting the new caption, and disabling it again to make it read-only.
+        Attributes:
+            self.data (list): A nested list or similar data structure containing
+                information about persons and their captions.
+            self.person_index (int): The index of the current person in the data structure.
+            self.person_sub_index (int): The sub-index of the current person in the data structure.
+            self.caption (str): The caption text retrieved from the data structure.
+            self.texts (dict): A dictionary of text widgets, where "Caption" is the key
+                for the caption text widget.
         """
+        
         if self.data[self.person_index][self.person_sub_index]["caption"] == None:
             self.caption = ""
         else:
@@ -327,12 +351,26 @@ class AnnotationTool(tb.Window):
     
     def readImage(self) -> None:
         """
-        Reads an image, resizes it to fit the frame, and converts it for display in a Tkinter widget.
-        Args:
-            imageID (int, optional): The ID of the image to read. Defaults to 1.
-        Returns:
-            None
+        Reads and processes an image, resizes it to fit within the specified frame, 
+        draws bounding boxes on the image, and updates the Tkinter label with the processed image.
+        Steps:
+        1. Updates the frame size for displaying the image.
+        2. Reads the image from the specified file path.
+        3. Resizes the image to fit within the frame while maintaining the aspect ratio.
+        4. Draws bounding boxes on the resized image based on the provided bounding box information.
+        5. Highlights a specific bounding box if `bounding_box_index` is set.
+        6. Converts the image from BGR to RGB format.
+        7. Converts the processed image to a PIL Image and then to a Tkinter PhotoImage.
+        8. Updates the Tkinter label to display the processed image.
+        Attributes:
+            self.image_frame_size (tuple): The width and height of the frame for displaying the image.
+            self.scaling_factor (float): The factor by which the image is resized.
+            self.image (ImageTk.PhotoImage): The processed image to be displayed in the Tkinter label.
+        Raises:
+            FileNotFoundError: If the image file specified in the path does not exist.
+            ValueError: If the bounding box information is invalid or improperly formatted.
         """
+        
         # step 1: Read the requested image size
         self.update()
         self.image_frame_size = (self.frames["Image"].winfo_width(), self.frames["Image"].winfo_height())
@@ -370,19 +408,39 @@ class AnnotationTool(tb.Window):
         self.labels["Image"].config(image=self.image)
         
         
-    def readPersonInfo(self) -> None:
+    def readPersonName(self) -> None:
         """
-        Reads a person's information from a file and assigns it to the instance variables `self.name` and `self.birth`.
-        Args:
-            personID (int, optional): The ID of the person to read. Defaults to 1.
-        Returns:
-            None
+        Reads and extracts the person's name from the file path stored in the data structure.
+        This method parses the file path associated with the current person index and sub-index,
+        extracts the name by splitting the path, and replaces underscores with spaces. The extracted
+        name is then displayed in the "Name" label of the "Person_info_frame".
+        Attributes:
+            self.parsed_path (list): A list of path components obtained by splitting the file path.
+            self.name (str): The extracted and formatted name of the person.
+        Updates:
+            Updates the "Name" label in the "Person_info_frame" with the extracted name.
         """
         self.parsed_path = self.data[self.person_index][self.person_sub_index]["path"].split("/")
         
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
         
+    def readPersonBirthDate(self) -> None:
+        """
+        Updates the birth date information (day, month, and year) for a person 
+        in the user interface by extracting and processing data from a file path.
+        This method:
+        - Extracts the file path from the `self.data` structure based on the 
+          current `person_index` and `person_sub_index`.
+        - Processes the file path to determine the birth year using the 
+          `find_birth_year` function.
+        - Updates the corresponding comboboxes in the "Person_info_frame" 
+          with the extracted birth day, month, and year.
+        If the birth year cannot be determined, it sets the year combobox to an 
+        empty string.
+        Returns:
+            None
+        """
         path = self.data[self.person_index][self.person_sub_index]["path"].split("/")
         path = "./" + path[1] + "/" + path[2]
         path = Path(path)
@@ -393,7 +451,6 @@ class AnnotationTool(tb.Window):
         self.birth_month = ""
         self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(self.birth_month)
         
-        
         self.birth_year = str(find_birth_year(path))
         
         if self.birth_year == "None":
@@ -403,35 +460,53 @@ class AnnotationTool(tb.Window):
     
     def readWikiLink(self) -> None:
         """
-        Reads a person's Wikipedia link from a file and returns it.
-        Args:
-            personID (int, optional): The ID of the person to read. Defaults to 1.
-        Returns:
-            str: The Wikipedia link.
+        Reads the Wikipedia link for the current person and stores it in the `self.link` attribute.
+        The method retrieves the URL from the `self.data` structure based on the current
+        `person_index` and `person_sub_index` values.
+        Attributes:
+            self.link (str): The Wikipedia URL for the current person.
         """
+        
         self.link = self.data[self.person_index][self.person_sub_index]["url"]
             
     def openWiki(self, event, link: str) -> None:
         """
-        Opens a Wikipedia page in the default web browser.
+        Opens a Wikipedia link in a separate process using multiprocessing.
         Args:
-            event (tk.Event): The event object.
+            event: The event object triggering this method (e.g., a GUI event).
+            link (str): The URL of the Wikipedia page to open.
         Returns:
             None
         """
-        
         self.web_proc = multiprocessing.Process(target=multiProcessWeb, args=(link,))
         self.web_proc.start()
         
         
     def printPixelPosition(self, event) -> None:
         """
-        Prints the pixel position of the mouse click on the image.
+        Handles the event of a mouse click on an image, determines the pixel position
+        of the click, checks if the click falls within any bounding boxes, and updates
+        the GUI accordingly.
         Args:
-            event (tk.Event): The event object.
-        Returns:
-            None
+            event: The event object containing information about the mouse click,
+                   including the x and y coordinates.
+        Behavior:
+            - Calculates the pixel position of the click relative to the scaling factor.
+            - Loads the image and resizes it based on the scaling factor.
+            - Iterates through the bounding boxes associated with the current image.
+            - Highlights the bounding box if the click falls within it.
+            - Updates the GUI label to indicate whether no bounding box, one bounding box,
+              or multiple bounding boxes were selected.
+            - Updates the displayed image with the highlighted bounding box (if any).
+        Notes:
+            - The method assumes that `self.data` contains the image paths and bounding
+              box information.
+            - The `self.labels` dictionary is used to update GUI elements.
+            - The `self.scaling_factor` is used to scale the image and bounding boxes.
+            - The `self.bounding_box_index` is updated to the index of the selected
+              bounding box if exactly one is selected, otherwise set to None.
         """
+        
         x, y = event.x, event.y
         pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
         img = imread_unicode(self.data[self.person_index][self.person_sub_index]["path"])
@@ -466,6 +541,15 @@ class AnnotationTool(tb.Window):
         self.labels["Image"].config(image=self.image)
      
     def openPopup(self, reference_errors: list, error_vals: list) -> None:
+        """
+        Opens a popup window to display a list of error messages.
+        Args:
+            reference_errors (list): A list of error messages to display in the popup.
+            error_vals (list): A list of boolean values indicating whether to display 
+                               the corresponding error message from `reference_errors`.
+        Returns:
+            None
+        """
         # Create a new popup window (Toplevel)
         
         popup = tb.Toplevel(self)
@@ -501,18 +585,57 @@ class AnnotationTool(tb.Window):
     
     def estimatedYearCreationCopy(self,event) -> None:
         """
-        Copies the estimated year of image creation to the right combobox.
-        Returns:
-            None
+        Copies the value from the "Year_left" combobox to the "Year_right" combobox
+        within the "Image_creation_frame_plus_pixel_pos" group.
+        Args:
+            event: The event object triggered by the user interaction.
         """
+        
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get())
     
     def getDataFromAnnotation(self) -> None:
         """
-        Gets the data from the annotation and saves it to a file.
+        Extracts annotation data from the GUI components and updates the internal data structure.
+        This method retrieves user-provided annotation data from various GUI elements, processes it,
+        and stores it in the `data_from_annotation` attribute. It ensures that the data structure
+        is initialized if not already done and updates or appends the annotation data for the
+        currently selected person and sub-index.
         Returns:
             None
+        Attributes Used:
+            - self.data_from_annotation: A list of lists storing annotation data for each person.
+            - self.data: A list containing metadata for each person, including file paths.
+            - self.comboboxes: A dictionary of combobox widgets for user input.
+            - self.checkbuttons: A dictionary of checkbutton widgets for user input.
+            - self.texts: A dictionary of text widgets for user input.
+            - self.bounding_box_index: An integer representing the index of the bounding box.
+            - self.person_index: An integer representing the index of the current person.
+            - self.person_sub_index: An integer representing the sub-index of the current person.
+        GUI Inputs Processed:
+            - Birth day, month, and year from comboboxes.
+            - Estimated year of image creation (left and right) from comboboxes.
+            - Checkbutton states for birthday, figure year, and face annotations.
+            - Annotation shortcomings from a text widget.
+        Data Stored:
+            - A dictionary containing:
+                - `path`: File path of the image.
+                - `fully_annotated`: Boolean indicating if all annotations are complete.
+                - `birthday_annotated`: Boolean indicating if the birthday is annotated.
+                - `figure_year_annotated`: Boolean indicating if the figure year is annotated.
+                - `face_found`: Boolean indicating if a face is found.
+                - `birth_day`: Day of birth.
+                - `birth_month`: Month of birth (converted to integer).
+                - `birth_year`: Year of birth.
+                - `estimated_year_creation_left`: Estimated year of creation (left).
+                - `estimated_year_creation_right`: Estimated year of creation (right).
+                - `annotation_shortcommings`: Text describing annotation shortcomings.
+                - `bounding_box_index`: Index of the bounding box.
+        Notes:
+            - The method converts the birth month from a string to an integer index (1-based).
+            - If the `data_from_annotation` list for the current person index is shorter than
+              the sub-index, the data dictionary is appended; otherwise, it is updated.
         """
+        
         if self.data_from_annotation == None:
             self.data_from_annotation = [[] for i in range(len(self.data))]
         
@@ -554,9 +677,19 @@ class AnnotationTool(tb.Window):
         
     def removeDataFromAnnotationWidgets(self) -> None:
         """
-        Removes the data from the annotation widgets.
-        Returns:
-            None
+        Clears and resets the annotation widgets and related states.
+        This method performs the following actions:
+        - Resets the values of various comboboxes related to birth and image creation.
+        - Clears and disables the text widget for annotation positions.
+        - Updates the label text to prompt the user to click on the image.
+        - Resets flags indicating whether annotation is possible for birth, creation, and face.
+        - Resets the bounding box index to None.
+        Behavior differs based on the value of `self.person_sub_index`:
+        - If `self.person_sub_index` is 0:
+            - Resets additional comboboxes related to birth information (Day, Month, Year).
+        - Otherwise:
+            - Only resets comboboxes related to image creation.
+        This method ensures that the annotation interface is cleared and ready for new input.
         """
         if self.person_sub_index == 0:
             self.comboboxes["Person_info_frame"]["Birth"]["Day"].set("")
@@ -586,16 +719,33 @@ class AnnotationTool(tb.Window):
     
     def fillDataToAnnotationWidgets(self) -> None:
         """
-        Fills the data to the annotation widgets.
+        Populates the annotation widgets with data from the current annotation entry.
+        This method retrieves annotation data for the currently selected person and 
+        sub-index from `self.data_from_annotation` and updates the corresponding 
+        widgets in the GUI. It sets values for birth date, estimated year of image 
+        creation, annotation shortcomings, and bounding box status.
+        Updates:
+            - Comboboxes for birth day, month, and year.
+            - Comboboxes for estimated year of image creation (left and right).
+            - A text widget for annotation shortcomings.
+            - A label indicating whether a bounding box was picked.
+            - A variable indicating if the annotation is impossible to complete.
+        Behavior:
+            - If a bounding box index is present, updates the label to indicate 
+              that a bounding box was picked.
+            - If no bounding box index is present, updates the label to prompt 
+              the user to click on the image.
+        Args:
+            None
         Returns:
             None
         """
+        
         birth_day = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_day"]
         birth_month = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_month"]
         birth_year = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_year"]
         estimated_year_creation_left = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_left"]
         estimated_year_creation_right = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_right"]
-        impossible_to_annote = self.data_from_annotation[self.person_index][self.person_sub_index]["impossible_to_annote"]
         annotation_shortcommings = self.data_from_annotation[self.person_index][self.person_sub_index]["annotation_shortcommings"]
         self.bounding_box_index = self.data_from_annotation[self.person_index][self.person_sub_index]["bounding_box_index"]
         
@@ -604,7 +754,6 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set(estimated_year_creation_left)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(estimated_year_creation_right)
-        self.impossible_to_fully_annotate_var.set(impossible_to_annote)
         self.texts["Pos_to_annote"].config(state="normal")
         self.texts["Pos_to_annote"].delete("1.0", "end")
         self.texts["Pos_to_annote"].insert("1.0", annotation_shortcommings)
@@ -615,10 +764,27 @@ class AnnotationTool(tb.Window):
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
 
     def write_to_json(self) -> None:
-        '''
-        Writes person's annonation data to the corresponding json entry.
-        The written data resides in a separate json file.
-        '''
+        """
+        Writes annotation data for a specific person to a JSON file.
+        This method retrieves annotation data for the currently selected person,
+        constructs a JSON file containing the data, and saves it to the person's
+        folder. The JSON file is named "annotation.json".
+        Args:
+            None
+        Returns:
+            None
+        Raises:
+            FileNotFoundError: If the specified path to the person's folder does not exist.
+            IOError: If there is an error writing to the JSON file.
+        Notes:
+            - The method assumes that `self.data_from_annotation` is a list of dictionaries,
+              where each dictionary contains annotation data for an image.
+            - The `self.person_index` is used to select the specific person's data from
+              `self.data_from_annotation`.
+            - The path to the person's folder is derived from the "path" key in the first
+              dictionary of the person's data.
+        """
+        
         person_data = self.data_from_annotation[self.person_index]  # one person can include multiple images
         pathstring = (person_data[0]["path"].rsplit("/",2))[0]      # get only the path to the person folder
         path_to_annotation = Path(pathstring) / "annotation.json"
@@ -632,10 +798,38 @@ class AnnotationTool(tb.Window):
 
     def nextRecord(self) -> None:
         """
-        Displays the next record in the database.
+        Handles the transition to the next record in the annotation process.
+        This method validates user inputs for various fields, checks for errors, 
+        and either displays a popup with error messages or proceeds to process 
+        the current annotation data. If the current record is the last one for 
+        the person, it writes the data to a JSON file and moves to the next person. 
+        Otherwise, it updates the interface to display the next record.
+        Validation checks include:
+        - Birth day is a valid integer in the range 1-31.
+        - Birth month is either a valid integer in the range 1-12 or a valid month name.
+        - Birth year is a valid integer less than or equal to the current year.
+        - Estimated year of image creation (left and right boundaries) are valid integers 
+          less than or equal to the current year.
+        - The right boundary of the estimated year of image creation is not less than 
+          the left boundary.
+        - A bounding box is selected.
+        If any validation errors are found and the "Pos_to_annote" checkbox is not selected, 
+        a popup is displayed with the corresponding error messages.
+        Otherwise, the method:
+        - Retrieves data from the annotation widgets.
+        - Updates the indices for the current person and record.
+        - Updates the control panel entries to reflect the current record and total records.
+        - Fills or clears annotation widgets based on the current record.
+        - Reads and updates the caption, image, person info, and wiki link.
+        - Terminates any running web process.
+        Raises:
+            None
         Returns:
             None
+        Callbacks:
+        - This method is typically bound to the "Next" (RIGHT) button in the GUI.
         """
+        
         list_of_errors = ["Birth day is not filled or is not an integer in the range 1-31!",
                           "Birth month is not filled or is not an integer in the range 1-12 or its name is written incorrectly!",
                           "Birth year is not filled or is not an integer lower than the current year!",
@@ -697,10 +891,11 @@ class AnnotationTool(tb.Window):
                 self.fillDataToAnnotationWidgets()
             else:
                 self.removeDataFromAnnotationWidgets()
+                self.readPersonBirthDate()
                 
             self.readCaption()
             self.readImage()
-            self.readPersonInfo()
+            self.readPersonName()
             self.readWikiLink()
             
             if self.web_proc != None:
@@ -709,11 +904,31 @@ class AnnotationTool(tb.Window):
     
     def previousRecord(self) -> None:
         """
-        Displays the previous record in the database.
-        Returns:
-            None
+        Navigate to the previous record in the dataset and update the GUI accordingly.
+        This method adjusts the indices for navigating through a dataset of records.
+        It updates the control panel GUI elements to reflect the current record's position
+        and total count. Additionally, it populates annotation widgets with the current
+        record's data and performs cleanup of any running web processes.
+        Steps performed:
+        1. Adjusts `person_index` and `person_sub_index` to point to the previous record.
+        2. Updates the "LEFT" and "RIGHT" control panel entries to display the current
+           record index and total records for the current person.
+        3. Calls helper methods to populate annotation widgets and load associated data:
+           - `fillDataToAnnotationWidgets()`
+           - `readCaption()`
+           - `readImage()`
+           - `readPersonName()`
+           - `readWikiLink()`
+        4. Terminates and joins any running web process (`web_proc`) if it exists.
+        Note:
+        - The method assumes `self.data` is a list of records grouped by person.
+        - The control panel entries are assumed to be part of a dictionary `self.entries`.
+        Raises:
+        - No explicit exceptions are raised, but errors may occur if the indices are
+          out of bounds or if the UI elements are not properly initialized.
+        Callbacks:
+        - This method is bound to the "LEFT" button in the control panel to navigate to the previous record.
         """
-        
         if(self.person_sub_index == 0):
             if(self.person_index != 0):
                 self.person_index -= 1
@@ -734,82 +949,112 @@ class AnnotationTool(tb.Window):
         self.fillDataToAnnotationWidgets()
         self.readCaption()
         self.readImage()
-        self.readPersonInfo()
+        self.readPersonName()
         self.readWikiLink()
         
         if self.web_proc != None:
             self.web_proc.terminate()
             self.web_proc.join()
-            
     
+    def skipToFirstUnannotated(self) -> None:
+        """
+        Skips to the first unannotated item in the dataset.
+        This method is intended to locate and navigate to the first item
+        in the dataset that has not yet been annotated. The specific behavior
+        and implementation details depend on the structure of the dataset
+        and the annotation logic.
+        Returns:
+            None
+        """
+        pass
+            
     def defaultScreenBuild(self):
-        
-        # Set the layout
+        """
+        Constructs and configures the default screen layout for the application.
+        This method sets up the grid layout, places various frames, labels, text widgets,
+        comboboxes, buttons, and other UI elements in their respective positions. It also
+        initializes and updates the content of these widgets, such as images, captions,
+        person information, and control panel widgets.
+        Key functionalities:
+        - Configures the grid layout for rows and columns with appropriate weights and sizes.
+        - Places and updates the left-hand frames, including the image and caption frames.
+        - Places and updates the right-hand frames, including person info, image creation,
+          pixel position, control panel, and annotation-related frames.
+        - Updates and binds events to widgets, such as image click events and combobox selections.
+        - Reads and displays data such as captions, images, person information, and Wikipedia links.
+        - Configures control panel widgets for navigation and annotation-related functionalities.
+        Note:
+        - This method assumes that the `self.frames`, `self.labels`, `self.texts`, `self.comboboxes`,
+          `self.checkbuttons`, `self.buttons`, and `self.entries` dictionaries are pre-initialized
+          with the required widgets.
+        - The method also assumes that helper methods like `readCaption`, `readImage`, `readPersonName`,
+          readPersonBirth() and `readWikiLink` are implemented to fetch and update the respective data.
+        """
+        # Set the layout of the main window
         self.update()
         self.grid_rowconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
         self.grid_rowconfigure(4, weight=1)
-        self.grid_rowconfigure(5, weight=1)
         self.grid_columnconfigure(0, minsize = int(self.winfo_width()/3), weight=1)
         self.grid_columnconfigure(1, minsize = int(self.winfo_width()/2), weight=1)
+        #--------------------------------------------------------------------------------------------
         
-        # Place the lefthand frames
-        self.frames["Image"].grid(row=0, column=0, rowspan = 5, sticky="nsew", padx=10, pady=40)
+        #Place and configure main frames
         
-        #Place the righthand frames
-        self.frames["Caption"].grid(row=5, column=0, sticky="ew", padx=27, pady=20, ipady=10)
-        self.frames["Person_info_frame"]["MAIN"].grid(row=1, column=1, sticky="ew", padx=10, pady=20)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)
-        self.frames["Control_panel"].grid(row=5, column=1, sticky="ew", padx=20, pady=20, ipady=11)
-        self.frames["Pos_to_annote"].grid(row=3, column=1, sticky="ew", padx=20, pady=20, ipady=10)
-        self.frames["Annotation_fail"].grid(row=4, column=1, sticky="ew", padx=20, pady=20, ipady=10)
+        # LEFT frames
+        self.frames["Image"].grid(row=0, column=0, rowspan = 4, sticky="nsew", padx=10, pady=40)
+        self.frames["Caption"].grid(row=4, column=0, sticky="ew", padx=27, pady=20, ipady=10)
         
+        # RIGHT frames
         
-        # Update and place the image and caption
-        self.readCaption()
-        self.readImage()
-        self.readPersonInfo()
-        
-        self.labels["Image"].place(relx=0.5, rely=0.5, anchor="center")
-        self.labels["Image"].bind("<Button-1>", self.printPixelPosition)
-        
-        self.texts["Caption"].insert("1.0", self.caption)
-        self.texts["Caption"].pack(fill="both", expand=True)
-        self.texts["Caption"].config(state="disabled")
-        
-        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
-        
-        # Place the person info frames
-        
+        #Birth and wiki link frames
         self.frames["Person_info_frame"]["MAIN"].grid_rowconfigure(0, weight=1)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(0, weight=5)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(1, weight=1)
+        self.frames["Person_info_frame"]["MAIN"].grid(row=1, column=1, sticky="ew", padx=10, pady=20)      
         
-        self.frames["Person_info_frame"]["Birth"].grid(row=0, column=1, sticky="ew", padx=10)
+        #Image creation and pixel position frames
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=8)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)  # Image_creation_frame, Pixel_position
         
-        # Update and place the person info entries
-            
+        #Annotation shortcomings frame
+        self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
+        self.frames["Annotation_fail"].grid_columnconfigure(0, weight=1)
+        self.frames["Annotation_fail"].grid(row=3, column=1, sticky="ew", padx=20, pady=20, ipady=10)
+        
+        #Control panel frame
+        self.frames["Control_panel"].grid_rowconfigure(0, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(0, weight=10)
+        self.frames["Control_panel"].grid_columnconfigure(1, weight=10)
+        self.frames["Control_panel"].grid_columnconfigure(2, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(3, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(4, weight=1)
+        self.frames["Control_panel"].grid_columnconfigure(5, weight=10)
+        self.frames["Control_panel"].grid_columnconfigure(6, weight=10)
+        self.frames["Control_panel"].grid(row=4, column=1, sticky="ew", padx=20, pady=20, ipady=11)
+        #--------------------------------------------------------------------------------------------
+        
+        #Place subframes and configure them
+        
+        # RIGHT frames
+        
+        #Wiki link frame and birth frame
         self.frames["Person_info_frame"]["Birth"].grid_rowconfigure(0, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(0, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(1, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(2, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(3, weight=1)
-
+        self.frames["Person_info_frame"]["Birth"].grid(row=0, column=1, sticky="ew", padx=10)
         
-        self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=10)
-        self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=10)
-        self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=10)
-        self.checkbuttons["Birth"].grid(row=0, column=3, padx=10)
+        self.frames["Person_info_frame"]["Wiki_link"].grid_rowconfigure(0, weight=1)
+        self.frames["Person_info_frame"]["Wiki_link"].grid_columnconfigure(0, weight=1)
+        self.frames["Person_info_frame"]["Wiki_link"].grid(row=0, column=0, sticky="nsew")
         
-        # Place and update the image creation frame and pixel position frame
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=8)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew")
-        
+        #Image creation and pixel position frames
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(1, weight=1)
@@ -817,74 +1062,91 @@ class AnnotationTool(tb.Window):
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(3, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(4, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(5, weight=1)
-
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10)
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(0, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(1, weight=1)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew")
+        #--------------------------------------------------------------------------------------------
         
+        # Update and place the image and caption widgets
+        
+        self.readImage()
+        self.labels["Image"].place(relx=0.5, rely=0.5, anchor="center")
+        self.labels["Image"].bind("<Button-1>", self.printPixelPosition)
+        
+        self.readCaption()
+        self.texts["Caption"].pack(fill="both", expand=True)
+        self.texts["Caption"].insert("1.0", self.caption)
+        self.texts["Caption"].config(state="disabled")
+        #--------------------------------------------------------------------------------------------
+        
+        #Read and place the person's name
+        
+        self.readPersonName()
+        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
+        #--------------------------------------------------------------------------------------------
+        
+        # Update and place birth and wiki link widgets
+        
+        #Birth frame
+        self.readPersonBirthDate()
+        self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=10)
+        self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=10)
+        self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=10)
+        
+        self.checkbuttons["Birth"].grid(row=0, column=3, padx=10)
+        
+        #Wiki link frame
+        self.readWikiLink()
+        self.labels["Wiki_link"].grid(row=0, column=0, sticky="ew")
+        self.labels["Wiki_link"].config(text = "Open Wikipedia page")
+        self.labels["Wiki_link"].bind("<Button-1>", lambda k: self.openWiki(k,self.link))
+        #--------------------------------------------------------------------------------------------
+        
+        # Place and update the image creation frame and pixel position frame
+        
+        #Image creation frame
+        self.labels["Image_creation_frame_plus_pixel_pos"]["("].grid(row=0, column=0, padx=21)
+        self.labels["Image_creation_frame_plus_pixel_pos"][";"].grid(row=0, column=2, padx=22)
+        self.labels["Image_creation_frame_plus_pixel_pos"][")"].grid(row=0, column=4, padx=21)
         
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].grid(row=0, column=1, padx=10)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].bind("<<ComboboxSelected>>", self.estimatedYearCreationCopy)
-        self.labels["Image_creation_frame_plus_pixel_pos"][";"].grid(row=0, column=2, padx=22)
-        self.labels["Image_creation_frame_plus_pixel_pos"]["("].grid(row=0, column=0, padx=21)
-        self.labels["Image_creation_frame_plus_pixel_pos"][")"].grid(row=0, column=4, padx=21)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=10)
+        
         self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 21)
         
-        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=10)
-        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, sticky="ew", padx=10)
+        #Pixel position frame
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, padx=10, sticky="nsew")
         
-        
-        # Update and place Wikipedia link
-        self.readWikiLink()
-        
-        self.frames["Person_info_frame"]["Wiki_link"].grid_rowconfigure(0, weight=1)
-        self.frames["Person_info_frame"]["Wiki_link"].grid_columnconfigure(0, weight=1)
-        
-        
-        self.frames["Person_info_frame"]["Wiki_link"].grid(row=0, column=0, sticky="nsew")
-        self.labels["Wiki_link"].config(text = "Open Wikipedia page")
-        self.labels["Wiki_link"].grid(row=0, column=0, sticky="ew")
-        self.labels["Wiki_link"].bind("<Button-1>", lambda k: self.openWiki(k,self.link))
-        
+        self.checkbuttons["Face"].grid(row=0, column=1, padx=10)
+        #--------------------------------------------------------------------------------------------
+            
         # Update and place the control panel widgets
-        
-        self.frames["Control_panel"].grid_rowconfigure(0, weight=1)
-        self.frames["Control_panel"].grid_columnconfigure(0, weight=10)
-        self.frames["Control_panel"].grid_columnconfigure(1, weight=1)
-        self.frames["Control_panel"].grid_columnconfigure(2, weight=1)
-        self.frames["Control_panel"].grid_columnconfigure(3, weight=1)
-        self.frames["Control_panel"].grid_columnconfigure(4, weight=10)
-        
         self.buttons["Previous"].grid(row=0, column=0, padx=10)
-        self.buttons["Next"].grid(row=0, column=4, padx=10)
+        self.buttons["Save"].grid(row=0, column=1, padx=10)
+        self.buttons["Skip_to_the_first_unannotated"].grid(row=0, column=5, padx=10)
+        self.buttons["Next"].grid(row=0, column=6, padx=10)
         
+        self.labels["Control_panel"]["/"].grid(row=0, column=3, padx=0)
         self.labels["Control_panel"]["/"].config(text="/")
-        self.labels["Control_panel"]["/"].grid(row=0, column=2, padx=0)
         
-        self.entries["Control_panel"]["LEFT"].grid(row=0, column=1, padx=0, sticky="e")
+        self.entries["Control_panel"]["LEFT"].grid(row=0, column=2, padx=0, sticky="e")
         self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
         self.entries["Control_panel"]["LEFT"].state(["readonly"])
-        self.entries["Control_panel"]["RIGHT"].grid(row=0, column=3, padx=0, sticky="w")
+        self.entries["Control_panel"]["RIGHT"].grid(row=0, column=4, padx=0, sticky="w")
         self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
         self.entries["Control_panel"]["RIGHT"].state(["readonly"])
-        
-        # Update and place possible to fully annotate widgets
-        
-        self.frames["Pos_to_annote"].grid_rowconfigure(0, weight=1)
-        self.frames["Pos_to_annote"].grid_columnconfigure(0, weight=1)
-        self.frames["Pos_to_annote"].grid_columnconfigure(1, weight=1)
-        
+        #--------------------------------------------------------------------------------------------
+         
         # Update and place the annotation shortcomings widgets
-        self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
-        self.frames["Annotation_fail"].grid_columnconfigure(0, weight=1)
         
         self.texts["Pos_to_annote"].grid(row=0, column=0, padx=10, sticky="nsew")
         self.texts["Pos_to_annote"].config(state="disabled")
+        #--------------------------------------------------------------------------------------------
         
-        
-
-        
-
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
     theme_lightness = 0
