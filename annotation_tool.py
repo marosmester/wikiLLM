@@ -7,13 +7,13 @@ from tkinter.scrolledtext import ScrolledText
 import numpy as np
 import cv2
 import datetime
-import os
 import webview
 import multiprocessing
 import json
 import platform
 from pathlib import Path
 from regex.helper_functions import find_birth_year
+import time
  
 def multiProcessWeb(link):
     """
@@ -191,7 +191,7 @@ class AnnotationTool(tb.Window):
         
         #Person name
         self.labels["Person_info_frame"]["Name"] = tb.Label(self, font=self.caption_font)
-        print(f"{i}, loaded data = {type(self.data_from_annotation[i])}, {len(self.data_from_annotation[i])}")
+
         #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
         
@@ -267,12 +267,14 @@ class AnnotationTool(tb.Window):
         #Fill already annotated images into self.data_from_annotation
         self.loadAlreadyAnnotated()
 
-        #print(f"data= { len(self.data) }")
-        #print(f"annotation data= {self.data_from_annotation}")
         #---------------------------------------------------------------------------------------------
         
         #Build the default screen layout
         self.defaultScreenBuild()
+
+        #Skip to 1st unannotated image
+        self.skipToFirstUnannotated()
+
     
     def possToFullyAnnotateCallback(self) -> None:
         """
@@ -898,6 +900,36 @@ class AnnotationTool(tb.Window):
             self.getDataFromAnnotation()
             self.write_annot_to_json()
 
+    def loadRecord(self) -> None:
+        """
+        Loads the record with the current person_index and person_subindex into
+        the GUI.
+        """
+        self.entries["Control_panel"]["LEFT"].config(state="normal")
+        self.entries["Control_panel"]["LEFT"].delete(0, "end")
+        self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
+        self.entries["Control_panel"]["LEFT"].config(state="readonly")
+        
+        self.entries["Control_panel"]["RIGHT"].config(state="normal")
+        self.entries["Control_panel"]["RIGHT"].delete(0, "end")
+        self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
+        self.entries["Control_panel"]["RIGHT"].config(state="readonly")
+        
+        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
+            self.fillDataToAnnotationWidgets()
+        else:
+            self.removeDataFromAnnotationWidgets()
+            self.readPersonBirthDate()
+            
+        self.readCaption()
+        self.readImage()
+        self.readPersonName()
+        self.readWikiLink()
+        
+        if self.web_proc != None:
+            self.web_proc.terminate()
+            self.web_proc.join()
+
     def nextRecord(self) -> None:           # not being used curently !!! See nextRecordWithoutSaving()
         """
         Handles the transition to the next record in the annotation process.
@@ -989,30 +1021,7 @@ class AnnotationTool(tb.Window):
                 self.write_annot_to_json()  # write data to JSON
                 self.person_sub_index += 1
             
-            self.entries["Control_panel"]["LEFT"].config(state="normal")
-            self.entries["Control_panel"]["LEFT"].delete(0, "end")
-            self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
-            self.entries["Control_panel"]["LEFT"].config(state="readonly")
-            
-            self.entries["Control_panel"]["RIGHT"].config(state="normal")
-            self.entries["Control_panel"]["RIGHT"].delete(0, "end")
-            self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
-            self.entries["Control_panel"]["RIGHT"].config(state="readonly")
-            
-            if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
-                self.fillDataToAnnotationWidgets()
-            else:
-                self.removeDataFromAnnotationWidgets()
-                self.readPersonBirthDate()
-                
-            self.readCaption()
-            self.readImage()
-            self.readPersonName()
-            self.readWikiLink()
-            
-            if self.web_proc != None:
-                self.web_proc.terminate()
-                self.web_proc.join()
+            self.loadRecord()
     
     def nextRecordWithoutSaving(self) -> None:
         """
@@ -1025,30 +1034,7 @@ class AnnotationTool(tb.Window):
         else:
             self.person_sub_index += 1
         
-        self.entries["Control_panel"]["LEFT"].config(state="normal")
-        self.entries["Control_panel"]["LEFT"].delete(0, "end")
-        self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
-        self.entries["Control_panel"]["LEFT"].config(state="readonly")
-        
-        self.entries["Control_panel"]["RIGHT"].config(state="normal")
-        self.entries["Control_panel"]["RIGHT"].delete(0, "end")
-        self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
-        self.entries["Control_panel"]["RIGHT"].config(state="readonly")
-        
-        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
-            self.fillDataToAnnotationWidgets()
-        else:
-            self.removeDataFromAnnotationWidgets()
-            self.readPersonBirthDate()
-            
-        self.readCaption()
-        self.readImage()
-        self.readPersonName()
-        self.readWikiLink()
-        
-        if self.web_proc != None:
-            self.web_proc.terminate()
-            self.web_proc.join()
+        self.loadRecord()
 
     def previousRecord(self) -> None:
         """
@@ -1084,25 +1070,7 @@ class AnnotationTool(tb.Window):
         else:
             self.person_sub_index -= 1
         
-        self.entries["Control_panel"]["LEFT"].config(state="normal")
-        self.entries["Control_panel"]["LEFT"].delete(0, "end")
-        self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
-        self.entries["Control_panel"]["LEFT"].config(state="readonly")
-        
-        self.entries["Control_panel"]["RIGHT"].config(state="normal")
-        self.entries["Control_panel"]["RIGHT"].delete(0, "end")
-        self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
-        self.entries["Control_panel"]["RIGHT"].config(state="readonly")
-        
-        self.fillDataToAnnotationWidgets()
-        self.readCaption()
-        self.readImage()
-        self.readPersonName()
-        self.readWikiLink()
-        
-        if self.web_proc != None:
-            self.web_proc.terminate()
-            self.web_proc.join()
+        self.loadRecord()
     
     def skipToFirstUnannotated(self) -> None:
         """
@@ -1114,7 +1082,25 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        pass
+        # figure out what is the first unanotated image:
+        idx, subIdx = 0, 0
+        if [] in self.data_from_annotation:
+            first_empty = self.data_from_annotation.index([])
+            if first_empty != 0:
+                annotated = len(self.data_from_annotation[first_empty - 1])
+                all = len(self.data[first_empty - 1])
+                if annotated != all:
+                    idx = first_empty - 1
+                    subIdx = annotated
+                else:
+                    idx = first_empty
+            self.person_index = idx
+            self.person_sub_index = subIdx
+        else:
+            self.person_index = len(self.data_from_annotation) - 1
+        
+        # config the front end:
+        self.loadRecord()
             
     def defaultScreenBuild(self):
         """
