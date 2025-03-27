@@ -191,7 +191,7 @@ class AnnotationTool(tb.Window):
         
         #Person name
         self.labels["Person_info_frame"]["Name"] = tb.Label(self, font=self.caption_font)
-        
+        print(f"{i}, loaded data = {type(self.data_from_annotation[i])}, {len(self.data_from_annotation[i])}")
         #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
         
@@ -238,9 +238,9 @@ class AnnotationTool(tb.Window):
         #Create a button widget
         
         #Control panel buttons
-        self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecord , padding=10, width=100, takefocus=False)
+        self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecordWithoutSaving , padding=10, width=100, takefocus=False)
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=10, takefocus=False)
-        self.buttons["Save"] = tb.Button(self.frames["Control_panel"], command=self.getDataFromAnnotation, padding=10, width=10, takefocus=False)
+        self.buttons["Save"] = tb.Button(self.frames["Control_panel"], command=self.saveAnnotation, padding=10, width=10, takefocus=False)
         self.buttons["Skip_to_the_first_unannotated"] = tb.Button(self.frames["Control_panel"], command=self.skipToFirstUnannotated, padding=10, width=10, takefocus=False)
         #---------------------------------------------------------------------------------------------
         
@@ -260,9 +260,15 @@ class AnnotationTool(tb.Window):
         #Load database
         with open("data1.json", "r") as file:
             self.data = json.load(file)
-        
+
         #Reorder the data
         self.catRelatedImages()
+
+        #Fill already annotated images into self.data_from_annotation
+        self.loadAlreadyAnnotated()
+
+        #print(f"data= { len(self.data) }")
+        #print(f"annotation data= {self.data_from_annotation}")
         #---------------------------------------------------------------------------------------------
         
         #Build the default screen layout
@@ -407,7 +413,6 @@ class AnnotationTool(tb.Window):
         self.image = ImageTk.PhotoImage(pil_img)
         self.labels["Image"].config(image=self.image)
         
-        
     def readPersonName(self) -> None:
         """
         Reads and extracts the person's name from the file path stored in the data structure.
@@ -480,8 +485,7 @@ class AnnotationTool(tb.Window):
         """
         self.web_proc = multiprocessing.Process(target=multiProcessWeb, args=(link,))
         self.web_proc.start()
-        
-        
+             
     def printPixelPosition(self, event) -> None:
         """
         Handles the event of a mouse click on an image, determines the pixel position
@@ -592,6 +596,24 @@ class AnnotationTool(tb.Window):
         
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get())
     
+    def loadAlreadyAnnotated(self) -> None:
+        """
+        After restarting the annotation tool, load the data from already annotated jsons into
+        self.data_from_annotation. Assumes catRelatedImages() has already been executed. 
+        """
+        self.data_from_annotation = [[] for i in range(len(self.data))]
+
+        for i in range( len(self.data) ):
+            path_to_person = Path( (self.data[i][0]["path"].rsplit("/",2))[0] )    # get only the path to the person folder
+            path_to_annotation = path_to_person / "annotation.json"
+            try:
+                with open(path_to_annotation, 'r') as f:
+                    self.data_from_annotation[i] = json.load(f)
+            except FileNotFoundError:
+                continue
+        
+        self.fillDataToAnnotationWidgets()      # to fill the annotation of the first image
+
     def getDataFromAnnotation(self) -> None:
         """
         Extracts annotation data from the GUI components and updates the internal data structure.
@@ -634,10 +656,7 @@ class AnnotationTool(tb.Window):
             - If the `data_from_annotation` list for the current person index is shorter than
               the sub-index, the data dictionary is appended; otherwise, it is updated.
         """
-        
-        if self.data_from_annotation == None:
-            self.data_from_annotation = [[] for i in range(len(self.data))]
-        
+    
         months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
         
         birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
@@ -672,8 +691,7 @@ class AnnotationTool(tb.Window):
             self.data_from_annotation[self.person_index][self.person_sub_index] = dataDict
         else:
             self.data_from_annotation[self.person_index].append(dataDict)
-        
-        
+             
     def removeDataFromAnnotationWidgets(self) -> None:
         """
         Clears and resets the annotation widgets and related states.
@@ -739,28 +757,28 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        
-        birth_day = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_day"]
-        birth_month = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_month"]
-        birth_year = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_year"]
-        estimated_year_creation_left = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_left"]
-        estimated_year_creation_right = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_right"]
-        annotation_shortcommings = self.data_from_annotation[self.person_index][self.person_sub_index]["annotation_shortcommings"]
-        self.bounding_box_index = self.data_from_annotation[self.person_index][self.person_sub_index]["bounding_box_index"]
-        
-        self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(birth_day)
-        self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(birth_month)
-        self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
-        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set(estimated_year_creation_left)
-        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(estimated_year_creation_right)
-        self.texts["Pos_to_annote"].config(state="normal")
-        self.texts["Pos_to_annote"].delete("1.0", "end")
-        self.texts["Pos_to_annote"].insert("1.0", annotation_shortcommings)
-        self.texts["Pos_to_annote"].config(state="disabled")
-        if self.bounding_box_index != None:
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was picked!")
-        else:
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
+        if self.data_from_annotation[self.person_index] != []:
+            birth_day = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_day"]
+            birth_month = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_month"]
+            birth_year = self.data_from_annotation[self.person_index][self.person_sub_index]["birth_year"]
+            estimated_year_creation_left = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_left"]
+            estimated_year_creation_right = self.data_from_annotation[self.person_index][self.person_sub_index]["estimated_year_creation_right"]
+            annotation_shortcommings = self.data_from_annotation[self.person_index][self.person_sub_index]["annotation_shortcommings"]
+            self.bounding_box_index = self.data_from_annotation[self.person_index][self.person_sub_index]["bounding_box_index"]
+            
+            self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(birth_day)
+            self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(birth_month)
+            self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
+            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set(estimated_year_creation_left)
+            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(estimated_year_creation_right)
+            self.texts["Pos_to_annote"].config(state="normal")
+            self.texts["Pos_to_annote"].delete("1.0", "end")
+            self.texts["Pos_to_annote"].insert("1.0", annotation_shortcommings)
+            self.texts["Pos_to_annote"].config(state="disabled")
+            if self.bounding_box_index != None:
+                self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was picked!")
+            else:
+                self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
 
     """
     def write_to_json(self) -> None:
@@ -810,7 +828,7 @@ class AnnotationTool(tb.Window):
         except FileNotFoundError:
             jsonData = []  
 
-        # if annotation.json has older image annotaion, delete it: 
+        # if annotation.json has older image annotation, delete it: 
         if jsonData != []:
             idx = None
             for i in range( len(jsonData) ):
@@ -826,8 +844,61 @@ class AnnotationTool(tb.Window):
         with open(path_to_annotation , "w") as f:
             json.dump(jsonData, f, indent=4)
 
+    def saveAnnotation(self) -> None:
+        """
+        Saves the image annotation to json. Includes pop-up window check.
+        """
+        list_of_errors = ["Birth day is not filled or is not an integer in the range 1-31!",
+                          "Birth month is not filled or is not an integer in the range 1-12 or its name is written incorrectly!",
+                          "Birth year is not filled or is not an integer lower than the current year!",
+                          "Estimated year of image creation (left boundary) is not filled or is not an integer lower than the current year!",
+                          "Estimated year of image creation (right boundary) is not filled or is not an integer lower than the current year!",
+                          "Estimated year of image creation (right boundary) is lower than its (left boundary)!",
+                          "Bounding box was not picked or multiple bounding boxes were picked!",
+                          "Annotation shortcomings are not specified."]
+        
+        list_of_errors_vals = [False for i in range(len(list_of_errors))]
+        list_of_month_names = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
+        
+        birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
+        birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
+        birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
+        estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
+        estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
+        bounding_box = self.bounding_box_index
+        creation_checked, birth_checked, face_checked = (self.checkbuttons["Creation"].instate(["selected"]),
+                                                        self.checkbuttons["Birth"].instate(["selected"]),
+                                                        self.checkbuttons["Face"].instate(["selected"]))
 
-    def nextRecord(self) -> None:
+        if birth_checked and (not birth_day.isdigit() or int(birth_day) not in range(1,32)):
+            list_of_errors_vals[0] = True
+        if birth_checked and (not birth_month.isdigit() and birth_month.lower() not in list_of_month_names):
+            list_of_errors_vals[1] = True
+        if birth_checked and (birth_month.isdigit() and int(birth_month) not in range(1,13)):
+            list_of_errors_vals[1] = True
+        if birth_checked and (not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[2] = True
+        if creation_checked and (estimated_year_creation_left == "" or not estimated_year_creation_left.isdigit() or int(estimated_year_creation_left) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[3] = True
+        if creation_checked and (estimated_year_creation_right == "" or not estimated_year_creation_right.isdigit() or int(estimated_year_creation_right) not in range(datetime.date.today().year + 1)):
+            list_of_errors_vals[4] = True
+        if creation_checked and (estimated_year_creation_left.isdigit() and estimated_year_creation_right.isdigit() and int(estimated_year_creation_right) < int(estimated_year_creation_left)):
+            list_of_errors_vals[5] = True
+        if face_checked and bounding_box == None:
+            list_of_errors_vals[6] = True
+        all_selected = (birth_checked and creation_checked and face_checked)
+        if not all_selected and not self.texts["Pos_to_annote"].get("1.0", "end-1c").strip():    # checks is ScrolledText is empty 
+            list_of_errors_vals[7] = True
+
+        if any(list_of_errors_vals) and (all_selected):
+            self.openPopup(list_of_errors, list_of_errors_vals)
+        elif not all_selected and any(list_of_errors_vals):
+            self.openPopup(list_of_errors, list_of_errors_vals)
+        else:
+            self.getDataFromAnnotation()
+            self.write_annot_to_json()
+
+    def nextRecord(self) -> None:           # not being used curently !!! See nextRecordWithoutSaving()
         """
         Handles the transition to the next record in the annotation process.
         This method validates user inputs for various fields, checks for errors, 
@@ -943,6 +1014,42 @@ class AnnotationTool(tb.Window):
                 self.web_proc.terminate()
                 self.web_proc.join()
     
+    def nextRecordWithoutSaving(self) -> None:
+        """
+        Like nextRecord(), but does not save the annotation neither does it trigger the
+        warning pop-up window.
+        """
+        if(self.person_sub_index + 1 == len(self.data[self.person_index])):
+            self.person_index += 1
+            self.person_sub_index = 0
+        else:
+            self.person_sub_index += 1
+        
+        self.entries["Control_panel"]["LEFT"].config(state="normal")
+        self.entries["Control_panel"]["LEFT"].delete(0, "end")
+        self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
+        self.entries["Control_panel"]["LEFT"].config(state="readonly")
+        
+        self.entries["Control_panel"]["RIGHT"].config(state="normal")
+        self.entries["Control_panel"]["RIGHT"].delete(0, "end")
+        self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
+        self.entries["Control_panel"]["RIGHT"].config(state="readonly")
+        
+        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
+            self.fillDataToAnnotationWidgets()
+        else:
+            self.removeDataFromAnnotationWidgets()
+            self.readPersonBirthDate()
+            
+        self.readCaption()
+        self.readImage()
+        self.readPersonName()
+        self.readWikiLink()
+        
+        if self.web_proc != None:
+            self.web_proc.terminate()
+            self.web_proc.join()
+
     def previousRecord(self) -> None:
         """
         Navigate to the previous record in the dataset and update the GUI accordingly.
