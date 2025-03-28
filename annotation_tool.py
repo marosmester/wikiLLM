@@ -279,6 +279,8 @@ class AnnotationTool(tb.Window):
         #Skip to the 1st unannotated image
         self.skipToFirstUnannotated()
 
+        self.setAnnotationStatus()
+
     
     def possToFullyAnnotateCallback(self) -> None:
         """
@@ -436,15 +438,15 @@ class AnnotationTool(tb.Window):
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
 
-    def setAnotationStatus(self) -> None:
+    def setAnnotationStatus(self) -> None:
         """
         Sets the annotation status label to one of the following:
         unnanotated/ partialy annotated/ fully annotated
         """
         # Find out the annotation status:
-        status =""
+        status, color ="", ""
         if self.data_from_annotation[self.person_index] == []:
-            status = "unnanotated"
+            status, color = "unnanotated", "red"
         else:
             present = False
             img_path = self.data[self.person_index][self.person_sub_index]["path"]
@@ -453,14 +455,14 @@ class AnnotationTool(tb.Window):
                     present = True
                     break
             if present and self.data_from_annotation[self.person_index][self.person_sub_index]["fully_annotated"]:
-                status = "fully annotated"
+                status, color = "fully annotated", "green"
             elif present:
-                status = "partially annotated"
+                status, color = "partially annotated", "orange"
             else:
-                status = "unnnanotated"
+                status, color = "unnnanotated", "red"
             
         # set the annotation status on the front end:
-        self.labels["Person_info_frame"]["Status"].config(text = "Status: " + status)
+        self.labels["Annotation_status"].config(text = status, foreground = color)
 
     def readPersonBirthDate(self) -> None:
         """
@@ -897,6 +899,8 @@ class AnnotationTool(tb.Window):
             self.getDataFromAnnotation()
             self.write_annot_to_json()
 
+        self.setAnnotationStatus()
+
     def loadRecord(self) -> None:
         """
         Loads the record with the current person_index and person_subindex into
@@ -922,6 +926,7 @@ class AnnotationTool(tb.Window):
         self.readImage()
         self.readPersonName()
         self.readWikiLink()
+        self.setAnnotationStatus()
         
         if self.web_proc != None:
             self.web_proc.terminate()
@@ -1299,7 +1304,7 @@ if __name__ == "__main__":
         
     print("App is running")
     app.mainloop()
-    print(app.data_from_annotation)  
+    #print(app.data_from_annotation)  
     if app.web_proc != None:
         app.web_proc.join()
     print("App is closed")
