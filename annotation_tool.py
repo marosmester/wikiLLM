@@ -141,6 +141,8 @@ class AnnotationTool(tb.Window):
         # Class attributes initialization
         self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
         self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='previousRecord.png')
+        self.IMAGE_SAVE = ImageTk.PhotoImage(file='diskette.png')
+        self.IMAGE_SKIP = ImageTk.PhotoImage(file='fast-forward.png')
         self.image = None
         self.caption = None
         self.name = None
@@ -168,17 +170,18 @@ class AnnotationTool(tb.Window):
         #Right half of the screen
         
         #Main frames
+        self.frames["Name_and_status"] = tb.Frame(self, padding=10)
         self.frames["Person_info_frame"]["MAIN"] = tb.Frame(self, padding=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"] = tb.Frame(self, padding=10)
         self.frames["Annotation_fail"] = tb.Labelframe(self, text="Annotation shortcomings", padding=10)
         self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
         self.frames["Control_panel"] = tb.Labelframe(self, padding=10, text="Control panel")
         
         #Subframes
+        self.frames["Annotation_status"] = tb.Labelframe(self.frames["Name_and_status"], padding=10, text="Annotation status")
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
         self.frames["Person_info_frame"]["Wiki_link"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Link to Wikipedia website", padding=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Estimated year interval of image creation", padding=10)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"] = tb.Labelframe(self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"], text="Pixel position of the person", padding=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Estimated year interval of image creation", padding=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Pixel position of the person", padding=10)
         #---------------------------------------------------------------------------------------------
         
         # Create a label
@@ -189,12 +192,10 @@ class AnnotationTool(tb.Window):
         #Caption
         self.labels["Caption"] = tb.Label(self.frames["Caption"], font=self.caption_font)
         
-        #Person name
-        self.labels["Person_info_frame"]["Name"] = tb.Label(self, font=self.caption_font)
-
-        #Annotation status
-        self.labels["Person_info_frame"]["Status"] = tb.Label(self, font = self.info_font)
-
+        #Person name and status frame
+        self.labels["Person_info_frame"]["Name"] = tb.Label(self.frames["Name_and_status"], font=self.caption_font)
+        self.labels["Annotation_status"] = tb.Label(self.frames["Annotation_status"], text="Unannotated", font=self.info_font)
+        
         #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
         
@@ -243,8 +244,8 @@ class AnnotationTool(tb.Window):
         #Control panel buttons
         self.buttons["Next"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_NEXT, command = self.nextRecordWithoutSaving , padding=10, width=100, takefocus=False)
         self.buttons["Previous"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_PREVIOUS, command= self.previousRecord, padding=10, width=10, takefocus=False)
-        self.buttons["Save"] = tb.Button(self.frames["Control_panel"], command=self.saveAnnotation, padding=10, width=10, takefocus=False)
-        self.buttons["Skip_to_the_first_unannotated"] = tb.Button(self.frames["Control_panel"], command=self.skipToFirstUnannotated, padding=10, width=10, takefocus=False)
+        self.buttons["Save"] = tb.Button(self.frames["Control_panel"], image=self.IMAGE_SAVE, command=self.saveAnnotation, padding=10, width=10, takefocus=False)
+        self.buttons["Skip_to_the_first_unannotated"] = tb.Button(self.frames["Control_panel"], image = self.IMAGE_SKIP, command=self.skipToFirstUnannotated, padding=10, width=10, takefocus=False)
         #---------------------------------------------------------------------------------------------
         
         #Create a checkbutton widget
@@ -563,11 +564,11 @@ class AnnotationTool(tb.Window):
                cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
         
         if cnt == 0:
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was not picked!")
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box not picked!")
         elif cnt == 1:
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Bounding box was picked!")
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Bounding box picked!")
         else:
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Multiple bounding boxes were picked!")
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Pick single bounding box!")
             self.bounding_box_index = None
         
         resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
@@ -1126,7 +1127,6 @@ class AnnotationTool(tb.Window):
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
-        self.grid_rowconfigure(4, weight=1)
         self.grid_columnconfigure(0, minsize = int(self.winfo_width()/3), weight=1)
         self.grid_columnconfigure(1, minsize = int(self.winfo_width()/2), weight=1)
         #--------------------------------------------------------------------------------------------
@@ -1134,27 +1134,31 @@ class AnnotationTool(tb.Window):
         #Place and configure main frames
         
         # LEFT frames
-        self.frames["Image"].grid(row=0, column=0, rowspan = 4, sticky="nsew", padx=10, pady=40)
-        self.frames["Caption"].grid(row=4, column=0, sticky="ew", padx=27, pady=20, ipady=10)
+        self.frames["Image"].grid(row=0, column=0, rowspan = 3, sticky="nsew", padx=10, pady=40)
+        self.frames["Caption"].grid(row=3, column=0, sticky="ew", padx=27, pady=20, ipady=10)
         
         # RIGHT frames
         
+        #Name and status frame
+        self.frames["Name_and_status"].grid_rowconfigure(0, weight=1)
+        self.frames["Name_and_status"].grid_columnconfigure(0, weight=1)
+        self.frames["Name_and_status"].grid_columnconfigure(1, weight=1)
+        self.frames["Name_and_status"].grid_columnconfigure(2, weight=1)
+        self.frames["Name_and_status"].grid_columnconfigure(3, weight=1)
+        self.frames["Name_and_status"].grid(row=0, column=1, sticky="ew", padx=10, pady=20)  # Name_and_status frame
+        
         #Birth and wiki link frames
         self.frames["Person_info_frame"]["MAIN"].grid_rowconfigure(0, weight=1)
-        self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(0, weight=5)
+        self.frames["Person_info_frame"]["MAIN"].grid_rowconfigure(1, weight=1)
+        self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(0, weight=15)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(1, weight=1)
+        self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(2, weight=5)
         self.frames["Person_info_frame"]["MAIN"].grid(row=1, column=1, sticky="ew", padx=10, pady=20)      
-        
-        #Image creation and pixel position frames
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_rowconfigure(0, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(0, weight=8)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid_columnconfigure(1, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["MAIN"].grid(row=2, column=1, sticky="ew", padx=10, pady=20)  # Image_creation_frame, Pixel_position
         
         #Annotation shortcomings frame
         self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
         self.frames["Annotation_fail"].grid_columnconfigure(0, weight=1)
-        self.frames["Annotation_fail"].grid(row=3, column=1, sticky="ew", padx=20, pady=20, ipady=10)
+        self.frames["Annotation_fail"].grid(row=2, column=1, sticky="ew", padx=20, pady=20, ipady=10)
         
         #Control panel frame
         self.frames["Control_panel"].grid_rowconfigure(0, weight=1)
@@ -1165,12 +1169,17 @@ class AnnotationTool(tb.Window):
         self.frames["Control_panel"].grid_columnconfigure(4, weight=1)
         self.frames["Control_panel"].grid_columnconfigure(5, weight=10)
         self.frames["Control_panel"].grid_columnconfigure(6, weight=10)
-        self.frames["Control_panel"].grid(row=4, column=1, sticky="ew", padx=20, pady=20, ipady=11)
+        self.frames["Control_panel"].grid(row=3, column=1, sticky="ew", padx=20, pady=20, ipady=11)
         #--------------------------------------------------------------------------------------------
         
         #Place subframes and configure them
         
         # RIGHT frames
+        
+        #Name and status frame
+        self.frames["Annotation_status"].grid_rowconfigure(0, weight=1)
+        self.frames["Annotation_status"].grid_columnconfigure(0, weight=1)
+        self.frames["Annotation_status"].grid(row=0, column=2, sticky="ew", padx=0, pady=0)
         
         #Wiki link frame and birth frame
         self.frames["Person_info_frame"]["Birth"].grid_rowconfigure(0, weight=1)
@@ -1178,11 +1187,11 @@ class AnnotationTool(tb.Window):
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(1, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(2, weight=1)
         self.frames["Person_info_frame"]["Birth"].grid_columnconfigure(3, weight=1)
-        self.frames["Person_info_frame"]["Birth"].grid(row=0, column=1, sticky="ew", padx=10)
+        self.frames["Person_info_frame"]["Birth"].grid(row=0, column=2, sticky="nsew", padx=0, pady=0)
         
         self.frames["Person_info_frame"]["Wiki_link"].grid_rowconfigure(0, weight=1)
         self.frames["Person_info_frame"]["Wiki_link"].grid_columnconfigure(0, weight=1)
-        self.frames["Person_info_frame"]["Wiki_link"].grid(row=0, column=0, sticky="nsew")
+        self.frames["Person_info_frame"]["Wiki_link"].grid(row=0, column=0, sticky="nsew",pady=0)
         
         #Image creation and pixel position frames
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_rowconfigure(0, weight=1)
@@ -1192,12 +1201,12 @@ class AnnotationTool(tb.Window):
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(3, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(4, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid_columnconfigure(5, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=0, column=1, sticky="ew", padx=10)
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"].grid(row=1, column=2, sticky="nsew", padx=0, pady=20)
         
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_rowconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(1, weight=1)
-        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=0, column=0, sticky="nsew")
+        self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=1, column=0, sticky="nsew",pady=20)
         #--------------------------------------------------------------------------------------------
         
         # Update and place the image and caption widgets
@@ -1212,20 +1221,23 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].config(state="disabled")
         #--------------------------------------------------------------------------------------------
         
-        #Read and place the person's name and annotation status
+        # Update and place the name and status widgets
+        
         self.readPersonName()
-        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx = 10)
+        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
+        self.labels["Annotation_status"].grid(row=0, column=0, sticky="ns", padx=10)
+        
         #--------------------------------------------------------------------------------------------
         
         # Update and place birth and wiki link widgets
         
         #Birth frame
         self.readPersonBirthDate()
-        self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=10)
-        self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=10)
-        self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=10)
+        self.comboboxes["Person_info_frame"]["Birth"]["Day"].grid(row=0, column=0, padx=0)
+        self.comboboxes["Person_info_frame"]["Birth"]["Month"].grid(row=0, column=1, padx=0)
+        self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=0)
         
-        self.checkbuttons["Birth"].grid(row=0, column=3, padx=10)
+        self.checkbuttons["Birth"].grid(row=0, column=3, padx=0, sticky="e")
         
         #Wiki link frame
         self.readWikiLink()
@@ -1237,20 +1249,20 @@ class AnnotationTool(tb.Window):
         # Place and update the image creation frame and pixel position frame
         
         #Image creation frame
-        self.labels["Image_creation_frame_plus_pixel_pos"]["("].grid(row=0, column=0, padx=21)
-        self.labels["Image_creation_frame_plus_pixel_pos"][";"].grid(row=0, column=2, padx=22)
-        self.labels["Image_creation_frame_plus_pixel_pos"][")"].grid(row=0, column=4, padx=21)
+        self.labels["Image_creation_frame_plus_pixel_pos"]["("].grid(row=0, column=0, padx = 0)
+        self.labels["Image_creation_frame_plus_pixel_pos"][";"].grid(row=0, column=2, padx= 0)
+        self.labels["Image_creation_frame_plus_pixel_pos"][")"].grid(row=0, column=4, padx= 0)
         
-        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].grid(row=0, column=1, padx=10)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].grid(row=0, column=1, padx=0)
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].bind("<<ComboboxSelected>>", self.estimatedYearCreationCopy)
-        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=10)
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=0)
         
-        self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 21)
+        self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 0, sticky = "e")
         
         #Pixel position frame
-        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, padx=10, sticky="nsew")
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, padx=0, sticky="nsew")
         
-        self.checkbuttons["Face"].grid(row=0, column=1, padx=10)
+        self.checkbuttons["Face"].grid(row=0, column=1, sticky = "e")
         #--------------------------------------------------------------------------------------------
             
         # Update and place the control panel widgets
