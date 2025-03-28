@@ -192,6 +192,9 @@ class AnnotationTool(tb.Window):
         #Person name
         self.labels["Person_info_frame"]["Name"] = tb.Label(self, font=self.caption_font)
 
+        #Annotation status
+        self.labels["Person_info_frame"]["Status"] = tb.Label(self, font = self.info_font)
+
         #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
         
@@ -272,7 +275,7 @@ class AnnotationTool(tb.Window):
         #Build the default screen layout
         self.defaultScreenBuild()
 
-        #Skip to 1st unannotated image
+        #Skip to the 1st unannotated image
         self.skipToFirstUnannotated()
 
     
@@ -431,7 +434,33 @@ class AnnotationTool(tb.Window):
         
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
-        
+
+    def setAnotationStatus(self) -> None:
+        """
+        Sets the annotation status label to one of the following:
+        unnanotated/ partialy annotated/ fully annotated
+        """
+        # Find out the annotation status:
+        status =""
+        if self.data_from_annotation[self.person_index] == []:
+            status = "unnanotated"
+        else:
+            present = False
+            img_path = self.data[self.person_index][self.person_sub_index]["path"]
+            for img in self.data_from_annotation[self.person_index]:
+                if img["path"] == img_path:
+                    present = True
+                    break
+            if present and self.data_from_annotation[self.person_index][self.person_sub_index]["fully_annotated"]:
+                status = "fully annotated"
+            elif present:
+                status = "partially annotated"
+            else:
+                status = "unnnanotated"
+            
+        # set the annotation status on the front end:
+        self.labels["Person_info_frame"]["Status"].config(text = "Status: " + status)
+
     def readPersonBirthDate(self) -> None:
         """
         Updates the birth date information (day, month, and year) for a person 
@@ -781,39 +810,6 @@ class AnnotationTool(tb.Window):
                 self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box was picked!")
             else:
                 self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-
-    """
-    def write_to_json(self) -> None:
-        Writes annotation data for a specific person to a JSON file.
-        This method retrieves annotation data for the currently selected person,
-        constructs a JSON file containing the data, and saves it to the person's
-        folder. The JSON file is named "annotation.json".
-        Args:
-            None
-        Returns:
-            None
-        Raises:
-            FileNotFoundError: If the specified path to the person's folder does not exist.
-            IOError: If there is an error writing to the JSON file.
-        Notes:
-            - The method assumes that `self.data_from_annotation` is a list of dictionaries,
-              where each dictionary contains annotation data for an image.
-            - The `self.person_index` is used to select the specific person's data from
-              `self.data_from_annotation`.
-            - The path to the person's folder is derived from the "path" key in the first
-              dictionary of the person's data.
-        
-        person_data = self.data_from_annotation[self.person_index]  # one person can include multiple images
-        pathstring = (person_data[0]["path"].rsplit("/",2))[0]      # get only the path to the person folder
-        path_to_annotation = Path(pathstring) / "annotation.json"
-
-        jsonData = []
-        for img in person_data:
-            jsonData.append(img)
-
-        with open(path_to_annotation , "w") as f:
-            json.dump(jsonData, f, indent=4)
-"""
 
     def write_annot_to_json(self):
         """
@@ -1216,10 +1212,9 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].config(state="disabled")
         #--------------------------------------------------------------------------------------------
         
-        #Read and place the person's name
-        
+        #Read and place the person's name and annotation status
         self.readPersonName()
-        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
+        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx = 10)
         #--------------------------------------------------------------------------------------------
         
         # Update and place birth and wiki link widgets
