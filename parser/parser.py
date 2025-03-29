@@ -79,7 +79,11 @@ def load_bbox_desc_file(parse_bboxes, path, subdirectory, filename = "faces_with
     if file_in_directory(sub_path, filename):
         file_path = f"{sub_path}/{filename}"
         with open(file_path, encoding="utf8") as f:
-            loaded_csv = pd.read_csv(f)
+            try:
+                loaded_csv = pd.read_csv(f)
+            except (pd.errors.EmptyDataError, FileNotFoundError):
+                loaded_csv = None
+
         return loaded_csv
     
 def select_relevant_bboxes(parse_bboxes : bool, bbox_df : pd.DataFrame, filename : str):
@@ -188,6 +192,7 @@ def parse_persons(path : str, show_persons : bool = False, write : bool = False)
     directory = os.listdir(path)
     jsons = []
     for person in directory:
+        print(person)
         cur_person_json = mine_data_for_person(path, person)
         if show_persons:
             for elem in cur_person_json:
@@ -195,11 +200,11 @@ def parse_persons(path : str, show_persons : bool = False, write : bool = False)
         jsons.extend(cur_person_json)
         print(person, len(cur_person_json))
     if write:
-        with open('data1.json', 'w', encoding="utf8") as f:
+        with open('data_minisubset02.json', 'w', encoding="utf8") as f:
             json.dump(jsons, f, indent=4)
 
 
 if __name__ == "__main__":
     print(os.getcwd())
-    path = "./minisubset"
+    path = "./minisubset02"
     parse_persons(path, write=True)
