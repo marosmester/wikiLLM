@@ -413,15 +413,26 @@ class AnnotationTool(tb.Window):
         # Draw the bounding boxes
         for i in range(len(self.data[self.person_index][self.person_sub_index]["bbox_info"])):
             bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
-            cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
-                          (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
-        
-        if self.bounding_box_index != None:
-            bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][self.bounding_box_index]
-            overlay = resized_img.copy()
-            cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
-                          (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
-            cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
+            #cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+            #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
+            cv2.polylines(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
+                                                  [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
+                                                  [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
+                                                  [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0), isClosed=True, thickness=3)
+                                                 
+
+        if self.checkbuttons["Face"].instate(["selected"]):
+            if self.bounding_box_index != None:
+                bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][self.bounding_box_index]
+                overlay = resized_img.copy()
+                #cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+                #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
+                cv2.fillPoly(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
+                                                    [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
+                                                    [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
+                                                    [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0))
+                
+                cv2.addWeighted(overlay, 0.6, resized_img, 0.4, 0, resized_img)
             
             
         # Step 3: Convert the image from BGR to RGB
@@ -568,16 +579,25 @@ class AnnotationTool(tb.Window):
         
         for i in range(len(self.data[self.person_index][self.person_sub_index]["bbox_info"])):
             bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
-            cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
-                          (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
-            if(pixel_position[0] >= bbox[0] and pixel_position[0] <= bbox[4] and 
-               pixel_position[1] >= bbox[1] and pixel_position[1] <= bbox[5]):
-               overlay = resized_img.copy()
-               cnt += 1
-               self.bounding_box_index = i
-               cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
-                             (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
-               cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
+            #cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+            #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
+            cv2.polylines(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
+                                                  [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
+                                                  [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
+                                                  [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0), isClosed=True, thickness=3)
+            if self.checkbuttons["Face"].instate(["selected"]):
+                if(pixel_position[0] >= bbox[0] and pixel_position[0] <= bbox[4] and 
+                    pixel_position[1] >= bbox[1] and pixel_position[1] <= bbox[5]):
+                    overlay = resized_img.copy()
+                    cnt += 1
+                    self.bounding_box_index = i
+                    #cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+                    #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
+                    cv2.fillPoly(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
+                                                        [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
+                                                        [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
+                                                        [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0))
+                    cv2.addWeighted(overlay, 0.6, resized_img, 0.4, 0, resized_img)
         
         if self.checkbuttons["Face"].instate(["selected"]) == False:
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="No correct bounding box!")
@@ -1316,7 +1336,7 @@ class AnnotationTool(tb.Window):
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
     theme_lightness = 1
-    parsed_data_filename = "data_minisubset02.json"
+    parsed_data_filename = "data1.json"
     
     if not theme_lightness:
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
