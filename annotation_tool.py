@@ -54,7 +54,7 @@ def imread_unicode(path, flags=cv2.IMREAD_COLOR):
 
 
 class AnnotationTool(tb.Window):
-    def __init__(self, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
+    def __init__(self, parsed_data_json, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
         """
         Initializes the Annotation Tool application with various configurations, widgets, and attributes.
         Parameters:
@@ -109,6 +109,7 @@ class AnnotationTool(tb.Window):
             defaultScreenBuild: Builds the default screen layout.
         """
         super().__init__(title, themename, iconphoto, size, position, minsize, maxsize, resizable, hdpi, scaling, transient, overrideredirect, alpha)
+        self.parsed_data_json = parsed_data_json
 
         # Set the window size - platform specific workaround
         if platform.system() == "Windows":
@@ -262,11 +263,12 @@ class AnnotationTool(tb.Window):
         #---------------------------------------------------------------------------------------------
         
         #Load database
-        with open("data1.json", "r") as file:
+        with open(self.parsed_data_json, "r") as file:
             self.data = json.load(file)
 
         #Reorder the data
         self.catRelatedImages()
+        print(f"self.data length = { len(self.data)}")
 
         #Fill already annotated images into self.data_from_annotation
         self.loadAlreadyAnnotated()
@@ -1295,12 +1297,13 @@ class AnnotationTool(tb.Window):
         
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 0
+    theme_lightness = 1
+    parsed_data_filename = "data_minisubset02.json"
     
     if not theme_lightness:
-        app = AnnotationTool(themename="cosmo")
+        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
     else:
-        app = AnnotationTool(themename="darkly")
+        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="darkly")
         
     print("App is running")
     app.mainloop()
