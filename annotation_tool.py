@@ -276,8 +276,10 @@ class AnnotationTool(tb.Window):
         #Build the default screen layout
         self.defaultScreenBuild()
 
-        #Skip to 1st unannotated image
+        #Skip to the 1st unannotated image
         self.skipToFirstUnannotated()
+
+        self.setAnnotationStatus()
 
     
     def possToFullyAnnotateCallback(self) -> None:
@@ -435,7 +437,33 @@ class AnnotationTool(tb.Window):
         
         self.name = self.parsed_path[2].replace("_", " ")
         self.labels["Person_info_frame"]["Name"].config(text = self.name)
-        
+
+    def setAnnotationStatus(self) -> None:
+        """
+        Sets the annotation status label to one of the following:
+        unnanotated/ partialy annotated/ fully annotated
+        """
+        # Find out the annotation status:
+        status, color ="", ""
+        if self.data_from_annotation[self.person_index] == []:
+            status, color = "unnanotated", "red"
+        else:
+            present = False
+            img_path = self.data[self.person_index][self.person_sub_index]["path"]
+            for img in self.data_from_annotation[self.person_index]:
+                if img["path"] == img_path:
+                    present = True
+                    break
+            if present and self.data_from_annotation[self.person_index][self.person_sub_index]["fully_annotated"]:
+                status, color = "fully annotated", "green"
+            elif present:
+                status, color = "partially annotated", "orange"
+            else:
+                status, color = "unnnanotated", "red"
+            
+        # set the annotation status on the front end:
+        self.labels["Annotation_status"].config(text = status, foreground = color)
+
     def readPersonBirthDate(self) -> None:
         """
         Updates the birth date information (day, month, and year) for a person 
@@ -787,39 +815,6 @@ class AnnotationTool(tb.Window):
             else:
                 self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
 
-    """
-    def write_to_json(self) -> None:
-        Writes annotation data for a specific person to a JSON file.
-        This method retrieves annotation data for the currently selected person,
-        constructs a JSON file containing the data, and saves it to the person's
-        folder. The JSON file is named "annotation.json".
-        Args:
-            None
-        Returns:
-            None
-        Raises:
-            FileNotFoundError: If the specified path to the person's folder does not exist.
-            IOError: If there is an error writing to the JSON file.
-        Notes:
-            - The method assumes that `self.data_from_annotation` is a list of dictionaries,
-              where each dictionary contains annotation data for an image.
-            - The `self.person_index` is used to select the specific person's data from
-              `self.data_from_annotation`.
-            - The path to the person's folder is derived from the "path" key in the first
-              dictionary of the person's data.
-        
-        person_data = self.data_from_annotation[self.person_index]  # one person can include multiple images
-        pathstring = (person_data[0]["path"].rsplit("/",2))[0]      # get only the path to the person folder
-        path_to_annotation = Path(pathstring) / "annotation.json"
-
-        jsonData = []
-        for img in person_data:
-            jsonData.append(img)
-
-        with open(path_to_annotation , "w") as f:
-            json.dump(jsonData, f, indent=4)
-"""
-
     def write_annot_to_json(self):
         """
         Writes the annotation of the current image to the database.
@@ -905,6 +900,8 @@ class AnnotationTool(tb.Window):
             self.getDataFromAnnotation()
             self.write_annot_to_json()
 
+        self.setAnnotationStatus()
+
     def loadRecord(self) -> None:
         """
         Loads the record with the current person_index and person_subindex into
@@ -930,6 +927,7 @@ class AnnotationTool(tb.Window):
         self.readImage()
         self.readPersonName()
         self.readWikiLink()
+        self.setAnnotationStatus()
         
         if self.web_proc != None:
             self.web_proc.terminate()
@@ -1307,7 +1305,7 @@ if __name__ == "__main__":
         
     print("App is running")
     app.mainloop()
-    print(app.data_from_annotation)  
+    #print(app.data_from_annotation)  
     if app.web_proc != None:
         app.web_proc.join()
     print("App is closed")
