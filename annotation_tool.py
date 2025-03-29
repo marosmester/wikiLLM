@@ -643,6 +643,7 @@ class AnnotationTool(tb.Window):
             path_to_person = Path( (self.data[i][0]["path"].rsplit("/",2))[0] )    # get only the path to the person folder
             path_to_annotation = path_to_person / "annotation.json"
             try:
+                print(path_to_annotation)
                 with open(path_to_annotation, 'r') as f:
                     self.data_from_annotation[i] = json.load(f)
             except FileNotFoundError:
