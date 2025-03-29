@@ -159,6 +159,7 @@ class AnnotationTool(tb.Window):
         self.possible_to_annotate_birth = tk.IntVar(value=1)
         self.possible_to_annotate_creation = tk.IntVar(value=1)
         self.possible_to_annotate_face = tk.IntVar(value=1)
+        self.person_pixel_position = None
         #--------------------------------------------------------------------------------------------
         
         # Create a frame
@@ -257,7 +258,7 @@ class AnnotationTool(tb.Window):
         self.checkbuttons["Creation"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_creation)
         
         #Pixel position frame
-        self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_face)
+        self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateFace, variable=self.possible_to_annotate_face)
         
         #---------------------------------------------------------------------------------------------
         
@@ -305,6 +306,16 @@ class AnnotationTool(tb.Window):
         else:
             self.texts["Pos_to_annote"].delete("1.0", tk.END)
             self.texts["Pos_to_annote"].config(state="disabled")
+            
+    def possToFullyAnnotateFace(self) -> None:
+        if self.checkbuttons["Face"].instate(["selected"]) == False:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="No correct bounding box!")
+            self.bounding_box_index = None
+        else:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
+        
+        self.readImage()    
+        self.possToFullyAnnotateCallback()
     
     def catRelatedImages(self) -> None:
         """
@@ -547,6 +558,7 @@ class AnnotationTool(tb.Window):
         
         x, y = event.x, event.y
         pixel_position = (int(x/self.scaling_factor), int(y/self.scaling_factor))
+        self.person_pixel_position = pixel_position
         img = imread_unicode(self.data[self.person_index][self.person_sub_index]["path"])
         h, w = img.shape[:2]
         resized_img = cv2.resize(img, (int(w*self.scaling_factor), int(h*self.scaling_factor)), interpolation=cv2.INTER_AREA)
@@ -565,7 +577,10 @@ class AnnotationTool(tb.Window):
                              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
                cv2.addWeighted(overlay, 0.4, resized_img, 0.6, 0, resized_img)
         
-        if cnt == 0:
+        if self.checkbuttons["Face"].instate(["selected"]) == False:
+            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="No correct bounding box!")
+            self.bounding_box_index = None
+        elif cnt == 0:
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box not picked!")
         elif cnt == 1:
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text=f"Bounding box picked!")
@@ -573,6 +588,8 @@ class AnnotationTool(tb.Window):
             self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Pick single bounding box!")
             self.bounding_box_index = None
         
+        # Draw a single point at the clicked position
+        cv2.circle(resized_img, (x, y), radius=10, color=(0, 0, 255), thickness=-1)
         resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(resized_img)
         self.image = ImageTk.PhotoImage(pil_img)

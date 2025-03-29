@@ -36,7 +36,7 @@ def find_year_file(fpath, pattern):
     Search any elligible file AS IT WAS A TXT FILE.
     '''
     #print(fpath)
-    with open(fpath, "r") as f:
+    with open(fpath, "r", encoding='utf-8') as f:
         content = f.read()
     match = re.search(pattern, content)
     return match
