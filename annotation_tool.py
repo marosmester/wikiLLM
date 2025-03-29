@@ -739,7 +739,8 @@ class AnnotationTool(tb.Window):
                     "estimated_year_creation_left": estimated_year_creation_left,
                     "estimated_year_creation_right": estimated_year_creation_right,
                     "annotation_shortcommings": anootation_shortcommings,
-                    "bounding_box_index": bounding_box_index}
+                    "bounding_box_index": bounding_box_index,
+                    "face_pixel_coordinates": self.person_pixel_position}
 
         if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
             self.data_from_annotation[self.person_index][self.person_sub_index] = dataDict
