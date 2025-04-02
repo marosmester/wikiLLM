@@ -957,11 +957,19 @@ class AnnotationTool(tb.Window):
         self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
         self.entries["Control_panel"]["RIGHT"].config(state="readonly")
         
-        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
+        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:             # if annotation for this picture already exists
             self.fillDataToAnnotationWidgets()
         else:
             self.removeDataFromAnnotationWidgets()
             self.readPersonBirthDate()
+            if self.person_index > 0 and len(self.data_from_annotation[self.person_index]) > 0:
+                # if this is a consecutive photo of the same person and some annotation of this personn already exists
+                birth_day = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_day"]
+                birth_month = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_month"]
+                birth_year = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_year"]
+                self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(birth_day)
+                self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(birth_month)
+                self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
             
         self.readCaption()
         self.readImage()
