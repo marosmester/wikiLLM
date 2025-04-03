@@ -422,8 +422,13 @@ class AnnotationTool(tb.Window):
                                                  
 
         if self.checkbuttons["Face"].instate(["selected"]):
-            if self.bounding_box_index != None:
-                bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][self.bounding_box_index]
+            if self.bounding_box_index != None or len(self.data[self.person_index][self.person_sub_index]["bbox_info"]) == 1:
+                if self.bounding_box_index != None:
+                    bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][self.bounding_box_index]
+                else:
+                    bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][0]
+                    self.bounding_box_index = 0
+                    
                 overlay = resized_img.copy()
                 #cv2.rectangle(overlay, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
                 #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), thickness=-1)
@@ -433,7 +438,7 @@ class AnnotationTool(tb.Window):
                                                     [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0))
                 
                 cv2.addWeighted(overlay, 0.6, resized_img, 0.4, 0, resized_img)
-            
+                self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Bounding box picked!")
             
         # Step 3: Convert the image from BGR to RGB
         resized_img = cv2.cvtColor(resized_img, cv2.COLOR_BGR2RGB)
