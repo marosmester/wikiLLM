@@ -160,6 +160,7 @@ class AnnotationTool(tb.Window):
         self.possible_to_annotate_birth = tk.IntVar(value=1)
         self.possible_to_annotate_creation = tk.IntVar(value=1)
         self.possible_to_annotate_face = tk.IntVar(value=1)
+        self.possible_to_annotate_sufficient = tk.IntVar(value=1)
         self.person_pixel_position = None
         #--------------------------------------------------------------------------------------------
         
@@ -172,14 +173,18 @@ class AnnotationTool(tb.Window):
         #Right half of the screen
         
         #Main frames
-        self.frames["Name_and_status"] = tb.Frame(self, padding=10)
-        self.frames["Person_info_frame"]["MAIN"] = tb.Frame(self, padding=10)
+        self.frames["Name"] = tb.Frame(self, padding=10)
+        self.frames["Database_info"] = tb.Labelframe(self, text="Database info", padding=10)
+        self.frames["Person_info_frame"]["MAIN"] = tb.Labelframe(self, text = 'Annotation essentials' ,padding=10)
         self.frames["Annotation_fail"] = tb.Labelframe(self, text="Annotation shortcomings", padding=10)
-        self.frames["Pos_to_annote"] = tb.Frame(self, padding=10)
+        self.frames["First_paragraph"] = tb.Labelframe(self, text="First wikipedia paragraph", padding=10)
         self.frames["Control_panel"] = tb.Labelframe(self, padding=10, text="Control panel")
         
         #Subframes
-        self.frames["Annotation_status"] = tb.Labelframe(self.frames["Name_and_status"], padding=10, text="Annotation status")
+        self.frames["Annotation_status"] = tb.Labelframe(self.frames["Database_info"], padding=10, text="Annotation status")
+        self.frames["Person_id"] = tb.Labelframe(self.frames["Database_info"], text="Person ID", padding=10)
+        self.frames["Annotation_percentage"] = tb.Labelframe(self.frames["Database_info"], text="Annotated", padding=10)
+        self.frames["Wiki_page_sufficient_for_annotation"] = tb.Frame(self.frames["Person_info_frame"]["MAIN"], padding=10)
         self.frames["Person_info_frame"]["Birth"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Birth Date", padding=10)
         self.frames["Person_info_frame"]["Wiki_link"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Link to Wikipedia website", padding=10)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"] = tb.Labelframe(self.frames["Person_info_frame"]["MAIN"], text="Estimated year interval of image creation", padding=10)
@@ -194,9 +199,13 @@ class AnnotationTool(tb.Window):
         #Caption
         self.labels["Caption"] = tb.Label(self.frames["Caption"], font=self.caption_font)
         
-        #Person name and status frame
-        self.labels["Person_info_frame"]["Name"] = tb.Label(self.frames["Name_and_status"], font=self.caption_font)
+        #Person name
+        self.labels["Person_info_frame"]["Name"] = tb.Label(self.frames["Name"], font=self.caption_font)
+        
+        #Status frame
         self.labels["Annotation_status"] = tb.Label(self.frames["Annotation_status"], text="Unannotated", font=self.info_font)
+        self.labels["Person_id"] = tb.Label(self.frames["Person_id"], text="Person ID", font=self.info_font)
+        self.labels["Annotation_percentage"] = tb.Label(self.frames["Annotation_percentage"], text="Annotated", font=self.info_font)
         
         #Wiki link
         self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
@@ -209,6 +218,9 @@ class AnnotationTool(tb.Window):
         #Pixel position frame
         self.labels["Image_creation_frame_plus_pixel_pos"]["px"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], text="Click on the image", font=self.info_font, width=15)
         
+        # Person info frame
+        self.labels["Wiki_page_sufficient_for_annotation"] = tb.Label(self.frames["Wiki_page_sufficient_for_annotation"], text="Wikipedia page sufficient for annotation?", font=self.info_font)
+        
         #Control panel
         self.labels["Control_panel"]["/"] = tb.Label(self.frames["Control_panel"], font=self.info_font)
         #---------------------------------------------------------------------------------------------
@@ -219,7 +231,10 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"] = ScrolledText(self.frames["Caption"], font=self.info_font, height = 2, width=30, wrap= "word")
         
         #Annotation shortcomings
-        self.texts["Pos_to_annote"] = tb.ScrolledText(self.frames["Annotation_fail"], font=self.info_font, height=7, width=30, wrap="word")
+        self.texts["Pos_to_annote"] = tb.ScrolledText(self.frames["Annotation_fail"], font=self.info_font, height=1, width=30, wrap="word")
+        
+        #First paragraph
+        self.texts["First_paragraph"] = tb.ScrolledText(self.frames["First_paragraph"], font=self.info_font, height=1, width=30, wrap="word")
         #---------------------------------------------------------------------------------------------
         
         # Create an entry widget
@@ -260,6 +275,9 @@ class AnnotationTool(tb.Window):
         
         #Pixel position frame
         self.checkbuttons["Face"] = tb.Checkbutton(self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateFace, variable=self.possible_to_annotate_face)
+        
+        #Person info frame
+        self.checkbuttons["Wiki_page_sufficient_for_annotation"] = tb.Checkbutton(self.frames["Wiki_page_sufficient_for_annotation"], width=3, bootstyle="round-toggle", command=self.possToFullyAnnotateCallback, variable=self.possible_to_annotate_sufficient)
         
         #---------------------------------------------------------------------------------------------
         
@@ -1157,7 +1175,45 @@ class AnnotationTool(tb.Window):
         
         # config the front end:
         self.loadRecord()
-            
+    
+    def checkbuttonsKeyPress(self, event) -> None:
+        """
+        Handles key press events for checkbuttons in the annotation tool.
+        This method is triggered when a key is pressed while a checkbutton is focused.
+        It checks if the pressed key is 'b' or 'c' and toggles the corresponding checkbutton
+        state (Birth or Creation) accordingly. The event is passed as an argument to the method.
+        Args:
+            event: The key press event object containing information about the pressed key.
+        Returns:
+            None
+        """
+        if isinstance(event.widget, tb.ScrolledText) or isinstance(event.widget, tb.Combobox):
+            return None        
+        
+        if event.char == "e":
+            if self.checkbuttons["Birth"].instate(["selected"]):
+                self.possible_to_annotate_birth.set(0)
+            else:
+                self.possible_to_annotate_birth.set(1)
+        elif event.char == "r":
+            if self.checkbuttons["Creation"].instate(["selected"]):
+                self.possible_to_annotate_creation.set(0)
+            else:
+                self.possible_to_annotate_creation.set(1)
+        elif event.char == "t":
+            if self.checkbuttons["Face"].instate(["selected"]):
+                self.possible_to_annotate_face.set(0)
+            else:
+                self.possible_to_annotate_face.set(1)
+        elif event.char == "q":
+            if self.checkbuttons["Wiki_page_sufficient_for_annotation"].instate(["selected"]):
+                self.possible_to_annotate_sufficient.set(0)
+            else:
+                self.possible_to_annotate_sufficient.set(1)
+        
+        self.possToFullyAnnotateCallback()
+        self.possToFullyAnnotateFace()
+        
     def defaultScreenBuild(self):
         """
         Constructs and configures the default screen layout for the application.
@@ -1186,6 +1242,8 @@ class AnnotationTool(tb.Window):
         self.grid_rowconfigure(1, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.grid_rowconfigure(3, weight=1)
+        self.grid_rowconfigure(4, weight=1)
+        self.grid_rowconfigure(5, weight=1)
         self.grid_columnconfigure(0, minsize = int(self.winfo_width()/3), weight=1)
         self.grid_columnconfigure(1, minsize = int(self.winfo_width()/2), weight=1)
         #--------------------------------------------------------------------------------------------
@@ -1193,18 +1251,27 @@ class AnnotationTool(tb.Window):
         #Place and configure main frames
         
         # LEFT frames
-        self.frames["Image"].grid(row=0, column=0, rowspan = 3, sticky="nsew", padx=10, pady=40)
-        self.frames["Caption"].grid(row=3, column=0, sticky="ew", padx=27, pady=20, ipady=10)
+        self.frames["Image"].grid(row=0, column=0, rowspan = 5, sticky="nsew", padx=10, pady=40)
+        self.frames["Caption"].grid(row=5, column=0, sticky="ew", padx=27, pady=10, ipady=10)
         
         # RIGHT frames
         
-        #Name and status frame
-        self.frames["Name_and_status"].grid_rowconfigure(0, weight=1)
-        self.frames["Name_and_status"].grid_columnconfigure(0, weight=1)
-        self.frames["Name_and_status"].grid_columnconfigure(1, weight=1)
-        self.frames["Name_and_status"].grid_columnconfigure(2, weight=1)
-        self.frames["Name_and_status"].grid_columnconfigure(3, weight=1)
-        self.frames["Name_and_status"].grid(row=0, column=1, sticky="ew", padx=10, pady=20)  # Name_and_status frame
+        #Name frame
+        self.frames["Name"].grid_rowconfigure(0, weight=1)
+        self.frames["Name"].grid_columnconfigure(0, weight=1)
+        self.frames["Name"].grid(row=0, column=1, sticky="ew", padx=10, pady=10)
+        
+        # Database info frame
+        self.frames["Database_info"].grid_rowconfigure(0, weight=1)
+        self.frames["Database_info"].grid_columnconfigure(0, weight=1)
+        self.frames["Database_info"].grid_columnconfigure(1, weight=1)
+        self.frames["Database_info"].grid_columnconfigure(2, weight=1)
+        self.frames["Database_info"].grid(row=1, column=1, sticky="ew", padx=10, pady=10)
+        
+        #First paragraph frame
+        self.frames["First_paragraph"].grid_rowconfigure(0, weight=1)
+        self.frames["First_paragraph"].grid_columnconfigure(0, weight=1)
+        self.frames["First_paragraph"].grid(row=2, column=1, sticky="ew", padx=10, pady=10, ipady=10)
         
         #Birth and wiki link frames
         self.frames["Person_info_frame"]["MAIN"].grid_rowconfigure(0, weight=1)
@@ -1212,12 +1279,12 @@ class AnnotationTool(tb.Window):
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(0, weight=15)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(1, weight=1)
         self.frames["Person_info_frame"]["MAIN"].grid_columnconfigure(2, weight=5)
-        self.frames["Person_info_frame"]["MAIN"].grid(row=1, column=1, sticky="ew", padx=10, pady=20)      
+        self.frames["Person_info_frame"]["MAIN"].grid(row=3, column=1, sticky="ew", padx=10, pady=10)      
         
         #Annotation shortcomings frame
         self.frames["Annotation_fail"].grid_rowconfigure(0, weight=1)
         self.frames["Annotation_fail"].grid_columnconfigure(0, weight=1)
-        self.frames["Annotation_fail"].grid(row=2, column=1, sticky="ew", padx=20, pady=20, ipady=10)
+        self.frames["Annotation_fail"].grid(row=4, column=1, sticky="ew", padx=10, pady=10, ipady=10)
         
         #Control panel frame
         self.frames["Control_panel"].grid_rowconfigure(0, weight=1)
@@ -1228,17 +1295,21 @@ class AnnotationTool(tb.Window):
         self.frames["Control_panel"].grid_columnconfigure(4, weight=1)
         self.frames["Control_panel"].grid_columnconfigure(5, weight=10)
         self.frames["Control_panel"].grid_columnconfigure(6, weight=10)
-        self.frames["Control_panel"].grid(row=3, column=1, sticky="ew", padx=20, pady=20, ipady=11)
+        self.frames["Control_panel"].grid(row=5, column=1, sticky="ew", padx=10, pady=10, ipady=11)
         #--------------------------------------------------------------------------------------------
         
         #Place subframes and configure them
         
         # RIGHT frames
         
-        #Name and status frame
+        #Database info frame
         self.frames["Annotation_status"].grid_rowconfigure(0, weight=1)
         self.frames["Annotation_status"].grid_columnconfigure(0, weight=1)
-        self.frames["Annotation_status"].grid(row=0, column=2, sticky="ew", padx=0, pady=0)
+        self.frames["Annotation_status"].grid(row=0, column=0, sticky="ew", padx=10, pady=0)
+        
+        self.frames["Person_id"].grid(row=0, column=1, sticky="ew", padx=10, pady=0)
+        
+        self.frames["Annotation_percentage"].grid(row=0, column=2, sticky="ew", padx=10, pady=0)
         
         #Wiki link frame and birth frame
         self.frames["Person_info_frame"]["Birth"].grid_rowconfigure(0, weight=1)
@@ -1266,6 +1337,12 @@ class AnnotationTool(tb.Window):
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(0, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid_columnconfigure(1, weight=1)
         self.frames["Image_creation_frame_plus_pixel_pos"]["Pixel_position"].grid(row=1, column=0, sticky="nsew",pady=20)
+        
+        #Sufficient for annotation frame
+        self.frames["Wiki_page_sufficient_for_annotation"].grid_rowconfigure(0, weight=1)
+        self.frames["Wiki_page_sufficient_for_annotation"].grid_columnconfigure(0, weight=1)
+        self.frames["Wiki_page_sufficient_for_annotation"].grid_columnconfigure(1, weight=1)
+        self.frames["Wiki_page_sufficient_for_annotation"].grid(row=2, column=0, columnspan = 3, sticky="ns", padx=0, pady=0)
         #--------------------------------------------------------------------------------------------
         
         # Update and place the image and caption widgets
@@ -1280,11 +1357,24 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].config(state="disabled")
         #--------------------------------------------------------------------------------------------
         
-        # Update and place the name and status widgets
+        # Update and place the name 
         
         self.readPersonName()
-        self.labels["Person_info_frame"]["Name"].grid(row=0, column=1, sticky="ns", padx=10)
+        self.labels["Person_info_frame"]["Name"].grid(row=0, column=0, sticky="ns", padx=10)
+        
+        #--------------------------------------------------------------------------------------------
+        
+        # Update and place the database info widgets
         self.labels["Annotation_status"].grid(row=0, column=0, sticky="ns", padx=10)
+        self.labels["Person_id"].grid(row=0, column=0, sticky="ns", padx=10)
+        self.labels["Annotation_percentage"].grid(row=0, column=0, sticky="ns", padx=10)
+        
+        #---------------------------------------------------------------------------------------------
+        # Update and place person info widgets
+        self.labels["Wiki_page_sufficient_for_annotation"].grid(row=0, column=0, sticky="e", padx=10)
+        
+        self.checkbuttons["Wiki_page_sufficient_for_annotation"].grid(row=0, column=1, padx=0, sticky="w")
+        self.bind("<KeyPress-q>", self.checkbuttonsKeyPress)
         
         #--------------------------------------------------------------------------------------------
         
@@ -1297,6 +1387,7 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Person_info_frame"]["Birth"]["Year"].grid(row=0, column=2, padx=0)
         
         self.checkbuttons["Birth"].grid(row=0, column=3, padx=0, sticky="e")
+        self.bind("<KeyPress-e>", self.checkbuttonsKeyPress)
         
         #Wiki link frame
         self.readWikiLink()
@@ -1317,18 +1408,24 @@ class AnnotationTool(tb.Window):
         self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].grid(row=0, column=3, padx=0)
         
         self.checkbuttons["Creation"].grid(row = 0, column = 5, padx = 0, sticky = "e")
+        self.bind("<KeyPress-r>", self.checkbuttonsKeyPress)
         
         #Pixel position frame
         self.labels["Image_creation_frame_plus_pixel_pos"]["px"].grid(row=0, column=0, padx=0, sticky="nsew")
         
         self.checkbuttons["Face"].grid(row=0, column=1, sticky = "e")
+        self.bind("<KeyPress-t>", self.checkbuttonsKeyPress)
         #--------------------------------------------------------------------------------------------
             
         # Update and place the control panel widgets
         self.buttons["Previous"].grid(row=0, column=0, padx=10)
+        self.bind("<KeyPress-a>", lambda k: self.previousRecord() if not(isinstance(k.widget, tb.ScrolledText) or isinstance(k.widget, tb.Combobox)) else None)
         self.buttons["Save"].grid(row=0, column=1, padx=10)
+        self.bind("<KeyPress-s>", lambda k: self.saveAnnotation() if not(isinstance(k.widget, tb.ScrolledText) or isinstance(k.widget, tb.Combobox)) else None)
         self.buttons["Skip_to_the_first_unannotated"].grid(row=0, column=5, padx=10)
+        self.bind("<KeyPress-w>", lambda k: self.skipToFirstUnannotated() if not(isinstance(k.widget, tb.ScrolledText) or isinstance(k.widget, tb.Combobox)) else None)
         self.buttons["Next"].grid(row=0, column=6, padx=10)
+        self.bind("<KeyPress-d>", lambda k: self.nextRecord() if not(isinstance(k.widget, tb.ScrolledText) or isinstance(k.widget, tb.Combobox)) else None)
         
         self.labels["Control_panel"]["/"].grid(row=0, column=3, padx=0)
         self.labels["Control_panel"]["/"].config(text="/")
@@ -1347,9 +1444,15 @@ class AnnotationTool(tb.Window):
         self.texts["Pos_to_annote"].config(state="disabled")
         #--------------------------------------------------------------------------------------------
         
+        # Update and place the first paragraph widgets
+        
+        self.texts["First_paragraph"].grid(row=0, column=0, padx=10, sticky="nsew")
+        self.texts["First_paragraph"].config(state="disabled")
+        
+        
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 1
+    theme_lightness = 0
     parsed_data_filename = "data1.json"
     
     if not theme_lightness:
