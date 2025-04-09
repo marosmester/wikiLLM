@@ -511,6 +511,21 @@ class AnnotationTool(tb.Window):
         # set the annotation status on the front end:
         self.labels["Annotation_status"].config(text = status, foreground = color)
 
+    def readPersonID(self) -> None:
+        """
+        Sets the Person's ID in the GUI.
+        ID is self.person_index.
+        """
+        self.labels["Person_id"].config(text = self.person_index)
+
+    def readAnnotationPercentage(self) -> None:
+        """
+        Sets the portion of already annotated images in [%] in the GUI.
+        """
+        n = self.data_from_annotation.count([])
+        perc = 100 * (len(self.data_from_annotation) - n)/len(self.data_from_annotation)
+        self.labels["Annotation_percentage"].config(text = str( round(perc,2)) + " %") 
+
     def readPersonBirthDate(self) -> None:
         """
         Updates the birth date information (day, month, and year) for a person 
@@ -566,7 +581,28 @@ class AnnotationTool(tb.Window):
         """
         self.web_proc = multiprocessing.Process(target=multiProcessWeb, args=(link,))
         self.web_proc.start()
-             
+
+    def readWikiParagraph(self) -> None:
+        """
+        Displays the first paragraph of the person's wiki page in the GUI.
+        """
+        # get the text:
+        char_limit = 300
+        path_to_person = Path( (self.data[self.person_index][0]["path"].rsplit("/",2))[0] )    # get only the path to the person folder
+        try:
+            with open(path_to_person / "text.txt", "r") as f:
+                wikiText = f.read()[:char_limit]
+            if wikiText == "":
+                wikiText = "File with Wikipedia text is empty."
+        except FileNotFoundError:
+            wikiText = "File with Wikipedia text not found."
+
+        # set it in the GUI:
+        self.texts["First_paragraph"].config(state="normal")
+        self.texts["First_paragraph"].delete("1.0", "end")
+        self.texts["First_paragraph"].insert("1.0", wikiText)
+        self.texts["First_paragraph"].config(state="disabled")
+
     def printPixelPosition(self, event) -> None:
         """
         Handles the event of a mouse click on an image, determines the pixel position
@@ -703,7 +739,6 @@ class AnnotationTool(tb.Window):
             path_to_person = Path( (self.data[i][0]["path"].rsplit("/",2))[0] )    # get only the path to the person folder
             path_to_annotation = path_to_person / "annotation.json"
             try:
-                print(path_to_annotation)
                 with open(path_to_annotation, 'r') as f:
                     self.data_from_annotation[i] = json.load(f)
             except FileNotFoundError:
@@ -756,26 +791,30 @@ class AnnotationTool(tb.Window):
     
         months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"]
         
+        # get data from the GUI:
         birth_day = self.comboboxes["Person_info_frame"]["Birth"]["Day"].get()
         birth_month = self.comboboxes["Person_info_frame"]["Birth"]["Month"].get()
         if birth_month.lower() in months:
             birth_month = months.index(birth_month.lower()) + 1
-            
         birth_year = self.comboboxes["Person_info_frame"]["Birth"]["Year"].get()
         estimated_year_creation_left = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].get()
         estimated_year_creation_right = self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].get()
         birthday_checkbox = self.checkbuttons["Birth"].instate(["selected"])
         figure_checkbox = self.checkbuttons["Creation"].instate(["selected"])
         face_checkbox = self.checkbuttons["Face"].instate(["selected"])
+        wiki_sufficient_checkbox = self.checkbuttons["Wiki_page_sufficient_for_annotation"].instate(["selected"])
         anootation_shortcommings = self.texts["Pos_to_annote"].get("1.0", "end")
         bounding_box_index = self.bounding_box_index
         path = self.data[self.person_index][self.person_sub_index]["path"]
 
+        # write data in a dict (will also be used for json creation):
         dataDict = {"path": path,
-                    "fully_annotated": birthday_checkbox and figure_checkbox and face_checkbox,
+                    "person_id": self.person_index,
+                    "fully_annotated": birthday_checkbox and figure_checkbox and face_checkbox and wiki_sufficient_checkbox,
                     "birthday_annotated": birthday_checkbox,
                     "figure_year_annotated": figure_checkbox,
                     "face_found": face_checkbox,
+                    "wiki_page_sufficient": wiki_sufficient_checkbox,
                     "birth_day": birth_day,
                     "birth_month": birth_month,
                     "birth_year": birth_year,
@@ -785,6 +824,7 @@ class AnnotationTool(tb.Window):
                     "bounding_box_index": bounding_box_index,
                     "face_pixel_coordinates": self.person_pixel_position}
 
+        # append the dict into self.data_from_annotation
         if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:
             self.data_from_annotation[self.person_index][self.person_sub_index] = dataDict
         else:
@@ -810,27 +850,19 @@ class AnnotationTool(tb.Window):
             self.comboboxes["Person_info_frame"]["Birth"]["Day"].set("")
             self.comboboxes["Person_info_frame"]["Birth"]["Month"].set("")
             self.comboboxes["Person_info_frame"]["Birth"]["Year"].set("")
-            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
-            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
-            self.possible_to_annotate_birth.set(1)
-            self.possible_to_annotate_creation.set(1)
-            self.possible_to_annotate_face.set(1)
-            self.texts["Pos_to_annote"].config(state="normal")
-            self.texts["Pos_to_annote"].delete("1.0", "end")
-            self.texts["Pos_to_annote"].config(state="disabled")
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-            self.bounding_box_index = None
-        else:
-            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
-            self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
-            self.possible_to_annotate_birth.set(1)
-            self.possible_to_annotate_creation.set(1)
-            self.possible_to_annotate_face.set(1)
-            self.texts["Pos_to_annote"].config(state="normal")
-            self.texts["Pos_to_annote"].delete("1.0", "end")
-            self.texts["Pos_to_annote"].config(state="disabled")
-            self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
-            self.bounding_box_index = None
+
+        # always:
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set("")
+        self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set("")
+        self.possible_to_annotate_birth.set(1)
+        self.possible_to_annotate_creation.set(1)
+        self.possible_to_annotate_face.set(1)
+        self.possible_to_annotate_sufficient.set(1)
+        self.texts["Pos_to_annote"].config(state="normal")
+        self.texts["Pos_to_annote"].delete("1.0", "end")
+        self.texts["Pos_to_annote"].config(state="disabled")
+        self.labels["Image_creation_frame_plus_pixel_pos"]["px"].config(text="Click on the image")
+        self.bounding_box_index = None
     
     def fillDataToAnnotationWidgets(self) -> None:
         """
@@ -869,6 +901,10 @@ class AnnotationTool(tb.Window):
             self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_left"].set(estimated_year_creation_left)
             self.comboboxes["Image_creation_frame_plus_pixel_pos"]["Year_right"].set(estimated_year_creation_right)
+            self.possible_to_annotate_birth.set(self.data_from_annotation[self.person_index][self.person_sub_index]["birthday_annotated"])
+            self.possible_to_annotate_creation.set(self.data_from_annotation[self.person_index][self.person_sub_index]["figure_year_annotated"])
+            self.possible_to_annotate_face.set(self.data_from_annotation[self.person_index][self.person_sub_index]["face_found"])
+            self.possible_to_annotate_sufficient.set(self.data_from_annotation[self.person_index][self.person_sub_index]["wiki_page_sufficient"])
             self.texts["Pos_to_annote"].config(state="normal")
             self.texts["Pos_to_annote"].delete("1.0", "end")
             self.texts["Pos_to_annote"].insert("1.0", annotation_shortcommings)
@@ -964,12 +1000,15 @@ class AnnotationTool(tb.Window):
             self.write_annot_to_json()
 
         self.setAnnotationStatus()
+        self.readAnnotationPercentage()
 
     def loadRecord(self) -> None:
         """
         Loads the record with the current person_index and person_subindex into
         the GUI.
         """
+        path_to_person = Path( (self.data[self.person_index][0]["path"].rsplit("/",2))[0] )
+        print( path_to_person)
         self.entries["Control_panel"]["LEFT"].config(state="normal")
         self.entries["Control_panel"]["LEFT"].delete(0, "end")
         self.entries["Control_panel"]["LEFT"].insert(0, str(self.person_sub_index + 1))
@@ -980,7 +1019,7 @@ class AnnotationTool(tb.Window):
         self.entries["Control_panel"]["RIGHT"].insert(0, str(len(self.data[self.person_index])))
         self.entries["Control_panel"]["RIGHT"].config(state="readonly")
         
-        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:             # if annotation for this picture already exists
+        if len(self.data_from_annotation[self.person_index]) > self.person_sub_index:      # if annotation for this picture already exists
             self.fillDataToAnnotationWidgets()
         else:
             self.removeDataFromAnnotationWidgets()
@@ -999,6 +1038,9 @@ class AnnotationTool(tb.Window):
         self.readPersonName()
         self.readWikiLink()
         self.setAnnotationStatus()
+        self.readPersonID()
+        self.readAnnotationPercentage()
+        self.readWikiParagraph()
         
         if self.web_proc != None:
             self.web_proc.terminate()
@@ -1452,8 +1494,8 @@ class AnnotationTool(tb.Window):
         
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 0
-    parsed_data_filename = "data1.json"
+    theme_lightness = 1
+    parsed_data_filename = "data_minisubset02.json"
     
     if not theme_lightness:
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
