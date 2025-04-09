@@ -162,6 +162,7 @@ class AnnotationTool(tb.Window):
         self.possible_to_annotate_face = tk.IntVar(value=1)
         self.possible_to_annotate_sufficient = tk.IntVar(value=1)
         self.person_pixel_position = None
+        self.theme = themename
         #--------------------------------------------------------------------------------------------
         
         # Create a frame
@@ -208,7 +209,7 @@ class AnnotationTool(tb.Window):
         self.labels["Annotation_percentage"] = tb.Label(self.frames["Annotation_percentage"], text="Annotated", font=self.info_font)
         
         #Wiki link
-        self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="blue", cursor="hand2", font=self.info_font)
+        self.labels["Wiki_link"] = tb.Label(self.frames["Person_info_frame"]["Wiki_link"], text="Link to Wikipedia page", foreground="#2780e3", cursor="hand2", font=self.info_font)
         
         #Image creation frame
         self.labels["Image_creation_frame_plus_pixel_pos"][";"] = tb.Label(self.frames["Image_creation_frame_plus_pixel_pos"]["Image_creation_frame"], text=";", font=self.info_font)
@@ -590,7 +591,7 @@ class AnnotationTool(tb.Window):
         char_limit = 300
         path_to_person = Path( (self.data[self.person_index][0]["path"].rsplit("/",2))[0] )    # get only the path to the person folder
         try:
-            with open(path_to_person / "text.txt", "r") as f:
+            with open(path_to_person / "text.txt", "r", encoding='UTF-8') as f:
                 wikiText = f.read()[:char_limit]
             if wikiText == "":
                 wikiText = "File with Wikipedia text is empty."
@@ -1436,6 +1437,8 @@ class AnnotationTool(tb.Window):
         self.labels["Wiki_link"].grid(row=0, column=0, sticky="ew")
         self.labels["Wiki_link"].config(text = "Open Wikipedia page")
         self.labels["Wiki_link"].bind("<Button-1>", lambda k: self.openWiki(k,self.link))
+        if(self.theme == "darkly"):
+            self.labels["Wiki_link"].config(foreground = '#375a7f')
         #--------------------------------------------------------------------------------------------
         
         # Place and update the image creation frame and pixel position frame
@@ -1495,7 +1498,7 @@ class AnnotationTool(tb.Window):
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
     theme_lightness = 1
-    parsed_data_filename = "data_minisubset02.json"
+    parsed_data_filename = "data1.json"
     
     if not theme_lightness:
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
