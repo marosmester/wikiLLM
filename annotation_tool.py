@@ -811,7 +811,7 @@ class AnnotationTool(tb.Window):
         # write data in a dict (will also be used for json creation):
         dataDict = {"path": path,
                     "person_id": self.person_index,
-                    "fully_annotated": birthday_checkbox and figure_checkbox and face_checkbox and wiki_sufficient_checkbox,
+                    "fully_annotated": birthday_checkbox and figure_checkbox and face_checkbox,
                     "birthday_annotated": birthday_checkbox,
                     "figure_year_annotated": figure_checkbox,
                     "face_found": face_checkbox,
@@ -972,12 +972,12 @@ class AnnotationTool(tb.Window):
                                                         self.checkbuttons["Birth"].instate(["selected"]),
                                                         self.checkbuttons["Face"].instate(["selected"]))
 
-        if birth_checked and (not birth_day.isdigit() or int(birth_day) not in range(1,32)):
-            list_of_errors_vals[0] = True
-        if birth_checked and (not birth_month.isdigit() and birth_month.lower() not in list_of_month_names):
-            list_of_errors_vals[1] = True
-        if birth_checked and (birth_month.isdigit() and int(birth_month) not in range(1,13)):
-            list_of_errors_vals[1] = True
+        #if birth_checked and (not birth_day.isdigit() or int(birth_day) not in range(1,32)):
+        #    list_of_errors_vals[0] = True
+        #if birth_checked and (not birth_month.isdigit() and birth_month.lower() not in list_of_month_names):
+        #    list_of_errors_vals[1] = True
+        #if birth_checked and (birth_month.isdigit() and int(birth_month) not in range(1,13)):
+        #    list_of_errors_vals[1] = True
         if birth_checked and (not birth_year.isdigit() or int(birth_year) not in range(datetime.date.today().year + 1)):
             list_of_errors_vals[2] = True
         if creation_checked and (estimated_year_creation_left == "" or not estimated_year_creation_left.isdigit() or int(estimated_year_creation_left) not in range(datetime.date.today().year + 1)):
@@ -1498,7 +1498,7 @@ class AnnotationTool(tb.Window):
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
     theme_lightness = 1
-    parsed_data_filename = "data1.json"
+    parsed_data_filename = "data_minisubset02.json"
     
     if not theme_lightness:
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
