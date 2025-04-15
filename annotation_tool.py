@@ -388,13 +388,49 @@ class AnnotationTool(tb.Window):
         if self.data[self.person_index][self.person_sub_index]["caption"] == None:
             self.caption = ""
         else:
+            # filter out wikipedia position tags (they are separated by "|" symbol)
             self.caption = self.data[self.person_index][self.person_sub_index]["caption"]
-        
+            bracket_pairs = self.createBracketPairs()
+            bar_indices = [i for i, c in enumerate(self.caption) if c == "|"]
+            bar_indices = bar_indices[::-1]
+            pos_outside_brackets = None
+            for ind in bar_indices:
+                inside = False
+                for pair in bracket_pairs:
+                    if ind > pair[0] and ind < pair[1]:     # "|" is inside []
+                        inside = True
+                        break
+                if inside:
+                    continue
+                else:
+                    pos_outside_brackets = ind
+                    break
+
+            if pos_outside_brackets != None and (pos_outside_brackets+1) < len(self.caption):
+                self.caption = self.caption[pos_outside_brackets+1:]
+
         self.texts["Caption"].config(state="normal")
         self.texts["Caption"].delete("1.0", "end")
         self.texts["Caption"].insert("1.0", self.caption)
         self.texts["Caption"].config(state="disabled")
     
+    def createBracketPairs(self):
+        """
+        Parses the caption and returns all [] bracket pair indeces as 2-tuples in a list
+        """
+        lBuffer = []
+        ret = []
+        cnt = 0
+        for char in self.caption:
+            if char == "[":
+                lBuffer.append(cnt)
+            elif char == "]" and len(lBuffer) != 0:
+                leftInd = lBuffer.pop()
+                ret.append( (leftInd, cnt) )
+            cnt += 1
+
+        return ret  
+
     def readImage(self) -> None:
         """
         Reads and processes an image, resizes it to fit within the specified frame, 
@@ -430,14 +466,15 @@ class AnnotationTool(tb.Window):
         resized_img = cv2.resize(img, (int(w*resizing_factor), int(h*resizing_factor)), interpolation=cv2.INTER_AREA)
         
         # Draw the bounding boxes
-        for i in range(len(self.data[self.person_index][self.person_sub_index]["bbox_info"])):
-            bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
-            #cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
-            #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
-            cv2.polylines(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
-                                                  [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
-                                                  [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
-                                                  [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0), isClosed=True, thickness=3)
+        if self.data[self.person_index][self.person_sub_index]["bbox_info"] != None:
+            for i in range(len(self.data[self.person_index][self.person_sub_index]["bbox_info"])):
+                bbox = self.data[self.person_index][self.person_sub_index]["bbox_info"][i]
+                #cv2.rectangle(resized_img, (int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)),
+                #              (int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)), (0, 255, 0), 3)
+                cv2.polylines(resized_img, [np.array([[int(bbox[0]*self.scaling_factor), int(bbox[1]*self.scaling_factor)],
+                                                    [int(bbox[2]*self.scaling_factor), int(bbox[3]*self.scaling_factor)],
+                                                    [int(bbox[4]*self.scaling_factor), int(bbox[5]*self.scaling_factor)],
+                                                    [int(bbox[6]*self.scaling_factor), int(bbox[7]*self.scaling_factor)]],np.int32)], color=(0, 255, 0), isClosed=True, thickness=3)
                                                  
 
         if self.checkbuttons["Face"].instate(["selected"]):
@@ -1027,9 +1064,17 @@ class AnnotationTool(tb.Window):
             self.readPersonBirthDate()
             if self.person_index > 0 and len(self.data_from_annotation[self.person_index]) > 0:
                 # if this is a consecutive photo of the same person and some annotation of this personn already exists
-                birth_day = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_day"]
-                birth_month = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_month"]
-                birth_year = self.data_from_annotation[self.person_index][self.person_sub_index-1]["birth_year"]
+                idx = 0
+                for i in range( len(self.data_from_annotation[self.person_index])):
+                    if self.data_from_annotation[self.person_index][i] != []:
+                        idx = i
+                        date_of_birth = str(self.data_from_annotation[self.person_index][i]["birth_day"])
+                        if date_of_birth.isdigit():
+                            # the actual saved birth day and month are found now, end search
+                            break
+                birth_day = self.data_from_annotation[self.person_index][idx]["birth_day"]
+                birth_month = self.data_from_annotation[self.person_index][idx]["birth_month"]
+                birth_year = self.data_from_annotation[self.person_index][idx]["birth_year"]
                 self.comboboxes["Person_info_frame"]["Birth"]["Day"].set(birth_day)
                 self.comboboxes["Person_info_frame"]["Birth"]["Month"].set(birth_month)
                 self.comboboxes["Person_info_frame"]["Birth"]["Year"].set(birth_year)
