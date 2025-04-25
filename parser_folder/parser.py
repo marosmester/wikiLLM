@@ -179,7 +179,7 @@ def mine_data_for_person(path : str,
             updated_json.append(cur_picture_new_json)
     return updated_json
 
-def parse_persons(path : str, show_persons : bool = False, write : bool = False):
+def parse_persons(path : str, show_persons : bool = False, write : bool = False, parse_subset_name : str = "parsed_data"):
     """
     Function which performs mine_data_for_person funtion on all persons within the database.
     Args:
@@ -200,11 +200,20 @@ def parse_persons(path : str, show_persons : bool = False, write : bool = False)
         jsons.extend(cur_person_json)
         print(person, len(cur_person_json))
     if write:
-        with open('data_minisubset02.json', 'w', encoding="utf8") as f:
+        with open(f'{parse_subset_name}.json', 'w', encoding="utf8") as f:
             json.dump(jsons, f, indent=4)
 
 
 if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        path = "./" + sys.argv[1]
+    else:
+        path = "./minisubset02"   #Change to your path
+    
+    if len(sys.argv) > 2:
+        parse_subset_name = sys.argv[2]
+    else:
+        parse_subset_name = "parsed_data" #Change to your desired name
+    
     print(os.getcwd())
-    path = "./minisubset02"
-    parse_persons(path, write=True)
+    parse_persons(path, write=True, parse_subset_name=parse_subset_name)
