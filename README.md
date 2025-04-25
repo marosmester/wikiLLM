@@ -1,2 +1,0 @@
-# wikiLLM
-Práce v týmu
