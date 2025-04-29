@@ -12,8 +12,36 @@ import multiprocessing
 import json
 import platform
 from pathlib import Path
-from regex.helper_functions import find_birth_year
+#from regex.helper_functions import find_birth_year
+from parser_folder import parser as psr
 import time
+import sys
+import re
+
+def find_birth_year(path_to_person):
+    '''
+    Finds the person's birth year in the wikipedia body text file.  
+    '''
+    # Get birth year from wiki main text
+    main_text = path_to_person / "text.txt"
+    pattern = r"Category:\b[12]\d{3}\b births" # 4 digit number beginning with a 1 or a 2
+    x = find_year_file(main_text, pattern)
+    if x is not None:
+        byear = int( x.group()[9:13] )           # extract birth yeat as int
+    else:
+        byear = None
+
+    return byear
+
+def find_year_file(fpath, pattern):
+    '''
+    Search any elligible file AS IT WAS A TXT FILE.
+    '''
+    #print(fpath)
+    with open(fpath, "r", encoding='utf-8') as f:
+        content = f.read()
+    match = re.search(pattern, content)
+    return match
  
 def multiProcessWeb(link):
     """
@@ -54,7 +82,7 @@ def imread_unicode(path, flags=cv2.IMREAD_COLOR):
 
 
 class AnnotationTool(tb.Window):
-    def __init__(self, parsed_data_json, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1):
+    def __init__(self, parsed_data_json, title="Annotation Tool", themename="litera", iconphoto='', size=None, position=None, minsize=None, maxsize=None, resizable=None, hdpi=True, scaling=None, transient=None, overrideredirect=False, alpha=1, web_mode="pywebview"):
         """
         Initializes the Annotation Tool application with various configurations, widgets, and attributes.
         Parameters:
@@ -163,6 +191,7 @@ class AnnotationTool(tb.Window):
         self.possible_to_annotate_sufficient = tk.IntVar(value=1)
         self.person_pixel_position = None
         self.theme = themename
+        self.web_mode = web_mode
         #--------------------------------------------------------------------------------------------
         
         # Create a frame
@@ -617,8 +646,11 @@ class AnnotationTool(tb.Window):
         Returns:
             None
         """
-        self.web_proc = multiprocessing.Process(target=multiProcessWeb, args=(link,))
-        self.web_proc.start()
+        if self.web_mode == "webbrowser":
+            webbrowser.open(link)
+        elif self.web_mode == "pywebview":
+            self.web_proc = multiprocessing.Process(target=multiProcessWeb, args=(link,))
+            self.web_proc.start()
 
     def readWikiParagraph(self) -> None:
         """
@@ -1542,13 +1574,69 @@ class AnnotationTool(tb.Window):
         
 if __name__ == "__main__":
     multiprocessing.freeze_support() # Required for Windows
-    theme_lightness = 1
-    parsed_data_filename = "data_minisubset02.json"
+    std_args = sys.argv[1:]
+    std_args_split = []
     
-    if not theme_lightness:
-        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="cosmo")
+    for arg in std_args:
+        if "=" in arg:
+            temp = arg.split("=")
+            std_args_split.append(temp[0] + "=")
+            std_args_split.append(temp[1])
+        else:
+            std_args_split.append(arg)
+    
+    if "parser=on" in std_args:
+        index = std_args.index("parser=on")
+        try:
+            if "=" not in std_args[index+1] and "=" not in std_args[index+2]:
+                parse_dir = "./" + std_args[index+1] 
+                parse_subset_name = std_args[index+2]
+            else:
+                parse_dir = None
+            psr.parse_persons(parse_dir, write=True, parse_subset_name=parse_subset_name)
+        except:
+            print("[ERROR] There was an error while parsing the data!")
+            print("[POSSIBLE SOLUTION] Check the name of the directory intended for parsing!")
+            print("[POSSIBLE SOLUTION] Have you provide both the name of the directory and the name of the outputed .json file?")
+            sys.exit(1)
+        parsed_data_filename = "./" + parse_subset_name + ".json"
     else:
-        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename="darkly")
+        if "data_json=" in std_args_split:
+            index = std_args_split.index("data_json=")
+            parsed_data_filename = "./" + std_args_split[index+1]+".json"
+        else:
+            parsed_data_filename = "./data1.json"     #TODO: Name of the json file containing the parser's output
+                                                      #Change it if you are not running the anotaion tool from command line
+    
+    if "theme=" in std_args_split:
+        index = std_args_split.index("theme=")
+        print("Theme: ", std_args_split[index+1])
+        if std_args_split[index+1] in ["dark", "light"]:
+            if std_args_split[index+1] == "dark":
+                theme = "darkly"
+            else:
+                theme = "cosmo"
+        else:
+            print("[ERROR] Theme should be either 'dark' or 'light'!")
+            sys.exit(1)
+    else:
+        theme = "cosmo" #TODO: Change it if you are not running the anotaion tool from command line and you want to use darkly theme
+    
+    if "webview=" in std_args_split:
+        index = std_args_split.index("webview=")
+        if std_args_split[index+1] in ["pywebview", "webbrowser"]:
+            web_mode = std_args_split[index+1]
+        else:
+            print("[ERROR] Web mode should be either 'pywebview' or 'webbrowser'!")
+            sys.exit(1)
+    else:
+        web_mode = "pywebview"   #TODO: Change it if you are not running the anotaion tool from command line and you want to use webbrowser
+     
+    try:
+        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename=theme, web_mode=web_mode)
+    except:
+        print("[ERROR] Wrong name of the pre-parsed data file!")
+        sys.exit(1)
         
     print("App is running")
     app.mainloop()
