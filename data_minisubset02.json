@@ -916,7 +916,7 @@
         "url": "https://en.wikipedia.org/wiki/Andrzej_Sado%C5%9B"
     },
     {
-        "path": "./minisubset02/Catherine_Delbarre/title_images/Kate_d'Oriola_St_Maur_2015_ind_t181834.jpg",
+        "path": "./minisubset02/Catherine_Delbarre/title_images/Kate_d_Oriola_St_Maur_2015_ind_t181834.jpg",
         "caption": "Kate d\u2019Oriola in 2015",
         "bbox_info": [
             [
@@ -1561,12 +1561,6 @@
         "url": "https://en.wikipedia.org/wiki/Channing_Frye"
     },
     {
-        "path": "./minisubset02/K\u00e1ri_Stef\u00e1nsson/title_images/K\u00e1ri_Stef\u00e1nsson_-_PopTech_2012_-_Reykjavik_Iceland_(7473568524)_(cropped).jpg",
-        "caption": null,
-        "bbox_info": null,
-        "url": "https://en.wikipedia.org/wiki/K%C3%A1ri_Stef%C3%A1nsson"
-    },
-    {
         "path": "./minisubset02/Innanet_James/title_images/Innanet_James.jpg",
         "caption": "James relaxing circa 2019",
         "bbox_info": [
@@ -1645,7 +1639,7 @@
         "url": "https://en.wikipedia.org/wiki/Fabrizio_Tabaton"
     },
     {
-        "path": "./minisubset02/Sonny_Matula/title_images/Leni-Kiko_Leniwanag_ang_Silangan_rally_Sonny_Matula_(Ynares_Center,_Antipolo,_Rizal;_04-05-2022).jpg",
+        "path": "./minisubset02/Sonny_Matula/title_images/Leni-Kiko_Leniwanag_ang_Silangan_rally_Sonny_Matula_(Ynares_Center,_Antipolo,_Rizal__04-05-2022).jpg",
         "caption": "Sonny Matula at the [[Leni Robredo 2022 presidential campaign|Robredo\u2013Pangilinan]] rally in 2022",
         "bbox_info": [
             [
@@ -1951,13 +1945,13 @@
         "url": "https://en.wikipedia.org/wiki/Katarzyna_Bujakiewicz"
     },
     {
-        "path": "./minisubset02/Simon_Raab/images/Parleau_Sculpture_\"Complexification\"_2011_by_Simon_Raab.jpg",
+        "path": "./minisubset02/Simon_Raab/images/Parleau_Sculpture__Complexification__2011_by_Simon_Raab.jpg",
         "caption": "Parleau Sculpture \"Complexification\" (2011) by Simon Raab",
         "bbox_info": [],
         "url": "https://en.wikipedia.org/wiki/Simon_Raab"
     },
     {
-        "path": "./minisubset02/Simon_Raab/images/Parleau_\"Andy_Boom\"_(2012)_by_Artist_Simon_Raab.jpg",
+        "path": "./minisubset02/Simon_Raab/images/Parleau__Andy_Boom__(2012)_by_Artist_Simon_Raab.jpg",
         "caption": "Parleau Wall Work \"Andy Boom\" (2012) by Simon Raab",
         "bbox_info": [
             [
@@ -2906,7 +2900,7 @@
         "url": "https://en.wikipedia.org/wiki/Seungri"
     },
     {
-        "path": "./minisubset02/Seungri/images/Seungri_During_Gatsby's_Fantastic_Festival_-_2.jpg",
+        "path": "./minisubset02/Seungri/images/Seungri_During_Gatsby_s_Fantastic_Festival_-_2.jpg",
         "caption": "upright|230px|Seungri DJing at D-Bridge Lounge, Cheongdam, in 2015.",
         "bbox_info": [
             [
@@ -3396,7 +3390,7 @@
         "url": "https://en.wikipedia.org/wiki/Ella_Guru"
     },
     {
-        "path": "./minisubset02/Ella_Guru/images/Ella_Guru,_The_Queen's_Speech.jpg",
+        "path": "./minisubset02/Ella_Guru/images/Ella_Guru,_The_Queen_s_Speech.jpg",
         "caption": "Ella Guru. ''The Queen's Speech''.",
         "bbox_info": [
             [

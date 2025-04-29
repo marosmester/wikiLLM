@@ -406,7 +406,7 @@ class AnnotationTool(tb.Window):
                     pos_outside_brackets = ind
                     break
 
-            if pos_outside_brackets != None and (pos_outside_brackets+1) < len(self.caption):
+            if (pos_outside_brackets != None) and (pos_outside_brackets < len(self.caption)//2) and (pos_outside_brackets+1) < len(self.caption):
                 self.caption = self.caption[pos_outside_brackets+1:]
 
         self.texts["Caption"].config(state="normal")
@@ -414,7 +414,7 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].insert("1.0", self.caption)
         self.texts["Caption"].config(state="disabled")
     
-    def createBracketPairs(self):
+    def createBracketPairs(self) -> list:
         """
         Parses the caption and returns all [] bracket pair indeces as 2-tuples in a list
         """
