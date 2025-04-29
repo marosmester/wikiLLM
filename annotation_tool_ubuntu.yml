@@ -1,0 +1,17 @@
+name: annotation-tool-env
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11              # exact Python version
+  - tk                       # for tkinter support
+  - pillow                   # imaging
+  - numpy>=1.23              # numerical arrays
+  - opencv                   # provides the cv2 module
+  - pandas                   # data manipulation and analysis
+  - matplotlib               # plotting
+  - pip                      # to install PyPI-only packages
+  - pip:
+    - ttkbootstrap
+    - pywebview
+    - wikipedia

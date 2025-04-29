@@ -13,7 +13,7 @@ import json
 import platform
 from pathlib import Path
 #from regex.helper_functions import find_birth_year
-from parser_folder import parser as psr
+import parser as psr
 import time
 import sys
 import re
@@ -168,10 +168,10 @@ class AnnotationTool(tb.Window):
         #--------------------------------------------------------------------------------------------
         
         # Class attributes initialization
-        self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
-        self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='previousRecord.png')
-        self.IMAGE_SAVE = ImageTk.PhotoImage(file='diskette.png')
-        self.IMAGE_SKIP = ImageTk.PhotoImage(file='fast-forward.png')
+        self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'graphics/nextRecord.png')
+        self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='graphics/previousRecord.png')
+        self.IMAGE_SAVE = ImageTk.PhotoImage(file='graphics/diskette.png')
+        self.IMAGE_SKIP = ImageTk.PhotoImage(file='graphics/fast-forward.png')
         self.image = None
         self.caption = None
         self.name = None
@@ -1605,7 +1605,7 @@ if __name__ == "__main__":
     else:
         if "data_json=" in std_args_split:
             index = std_args_split.index("data_json=")
-            parsed_data_filename = "./" + std_args_split[index+1]+".json"
+            parsed_data_filename = std_args_split[index+1]+".json"
         else:
             parsed_data_filename = "./data1.json"     #TODO: Name of the json file containing the parser's output
                                                       #Change it if you are not running the anotaion tool from command line
@@ -1634,7 +1634,7 @@ if __name__ == "__main__":
     else:
         web_mode = "pywebview"   #TODO: Change it if you are not running the anotaion tool from command line and you want to use webbrowser
      
-    try:
+    try: 
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename=theme, web_mode=web_mode)
     except:
         print("[ERROR] Wrong name of the pre-parsed data file!")

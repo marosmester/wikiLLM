@@ -8,7 +8,7 @@ The most straightforward way is to utilize our preconfigured conda environment.
    You'll need to provide your email address and click Submit. After that, you'll be able to download the installation files..
 3) Install Anaconda.
 4) Open the Anaconda PowerShell Prompt and navigate to the folder where you cloned the repository.
-5) Run this command:<br/>
+5) Run this command:<br/>### On Windows
    ```
    conda env create -f environment_win.yml
    ```
@@ -47,5 +47,16 @@ The most straightforward way is to utilize our preconfigured conda environment.
    You can also run the annotation tool from your favorite IDE. However, you need to open our directory in the IDE and modify a few lines in the annotation tool's     main function. These lines are marked with TODO comments.
    
 ### On Linux
+1) Clone this repository.
+2) Download and install the Anaconda package manager: https://docs.conda.io/projects/conda/en/stable/user-guide/install/linux.html .
+3) Run this command:<br/>
+   ```
+   conda env create -f annotation_tool_ubuntu.yml
+   ```
+4) Activate the environment by running this command: <br/>
+    ```
+    conda activate annotation-tool-env 
+    ```
+5) Before
 
 ## Annotation procedure
