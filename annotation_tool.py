@@ -13,7 +13,7 @@ import json
 import platform
 from pathlib import Path
 #from regex.helper_functions import find_birth_year
-from parser_folder import parser as psr
+#from parser_folder import parser as psr
 import time
 import sys
 import re
@@ -587,11 +587,13 @@ class AnnotationTool(tb.Window):
 
     def readAnnotationPercentage(self) -> None:
         """
-        Sets the portion of already annotated images in [%] in the GUI.
+        Sets the number of already annotated in the GUI.
         """
-        n = self.data_from_annotation.count([])
-        perc = 100 * (len(self.data_from_annotation) - n)/len(self.data_from_annotation)
-        self.labels["Annotation_percentage"].config(text = str( round(perc,2)) + " %") 
+        all = len(self.data_from_annotation)
+        anotated  = all - self.data_from_annotation.count([]) # number of annotated images
+        self.labels["Annotation_percentage"].config(text = str(anotated)+ " / " + str(all) )
+        #perc = 100 * (len(self.data_from_annotation) - n)/len(self.data_from_annotation)
+        #self.labels["Annotation_percentage"].config(text = str( round(perc,2)) + " %") 
 
     def readPersonBirthDate(self) -> None:
         """
