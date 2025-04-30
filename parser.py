@@ -9,6 +9,8 @@ import wikipedia
 import sys
 sys.stdout.reconfigure(encoding='utf-8')
 
+PATH_TO_DATABASE = "./minisubset02"
+OUTPUT_FILE_NAME = "parsed_data"
 
 def check_raster_image(image_name : str):
     """
@@ -208,12 +210,12 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         path = "./" + sys.argv[1]
     else:
-        path = "./minisubset02"   #Path to the database of persons
+        path = PATH_TO_DATABASE   #Path to the database of persons
     
     if len(sys.argv) > 2:
         parse_subset_name = sys.argv[2]
     else:
-        parse_subset_name = "parsed_data" # Name of the json file containing the parser's output
+        parse_subset_name = OUTPUT_FILE_NAME # Name of the json file containing the parser's output
     
     print(os.getcwd())
     parse_persons(path, write=True, parse_subset_name=parse_subset_name)
