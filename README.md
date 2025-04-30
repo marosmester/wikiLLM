@@ -8,7 +8,7 @@ The most straightforward way is to utilize our preconfigured conda environment.
    You'll need to provide your email address and click Submit. After that, you'll be able to download the installation files..
 3) Install Anaconda.
 4) Open the Anaconda PowerShell Prompt and navigate to the folder where you cloned the repository.
-5) Run this command:<br/>### On Windows
+5) Run this command:<br/>
    ```
    conda env create -f environment_win.yml
    ```
