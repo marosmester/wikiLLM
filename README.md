@@ -20,6 +20,8 @@ The most straightforward way is to utilize our preconfigured conda environment.
    ```
    python parser.py <database_name> <output_json_name>
    ```
+   **NOTE:** The parsing process can take a long time, especially on larger databases (4+ minutes). </br>Also, ensure that the folder ```<database_name>``` is in the same directory as ```annotation_tool.py```.
+
 8) After successfully parsing the database, you can run the annotation tool as follows:
    ```
    python annotation_tool.py data_json=<parser_output_json>
@@ -57,6 +59,28 @@ The most straightforward way is to utilize our preconfigured conda environment.
     ```
     conda activate annotation-tool-env 
     ```
-5) Before
+5) Before the first annotation, you need to parse the database containing the person records. To this only once. Use the following command:
+   ```
+   python parser.py <database_name> <output_json_name>
+   ```
+   **NOTE:** The parsing process can take a long time, especially on larger databases (4+ minutes). </br>Also, ensure that the folder ```<database_name>``` is in the same directory as ```annotation_tool.py```.
+
+6) You are now ready to start the annotation tool. Example running script:  
+   ```
+   python annotation_tool.py data_json=<parser_output_json> webview=webbrowser
+   ```
+   There are other optional flags you can use to run the script. The following flag runs the parser before opening the annotation tool:
+   ```
+   parser=on <database_name> <output_json_name>
+   ```
+   This flag sets the backgorund color of the GUI:
+   ```
+   theme=<dark/light>
+   ```
+   And this flag changes between pywebview (better positioning of external pages) and webbrowser:
+   ```
+   webview=<pywebview/webbrowser>
+   ```
+   **NOTE:** Running the flag ```webview=webbrowser``` is recommended on Linux, because some on some distros ```webview=pywebview``` was shown to cause issues.
 
 ## Annotation procedure

@@ -58,7 +58,6 @@ def multiProcessWeb(link):
     """
     
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
-    print("start wiki")
     webview.start(gui='gtk')
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
@@ -317,7 +316,6 @@ class AnnotationTool(tb.Window):
 
         #Reorder the data
         self.catRelatedImages()
-        print(f"self.data length = { len(self.data)}")
 
         #Fill already annotated images into self.data_from_annotation
         self.loadAlreadyAnnotated()
@@ -1633,9 +1631,10 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         web_mode = "pywebview"   #TODO: Change it if you are not running the anotaion tool from command line and you want to use webbrowser
-     
+
     try: 
         app = AnnotationTool(parsed_data_json= parsed_data_filename, themename=theme, web_mode=web_mode)
+        print(parsed_data_filename, theme, web_mode)
     except:
         print("[ERROR] Wrong name of the pre-parsed data file!")
         sys.exit(1)
