@@ -3,3 +3,8 @@ minisubset[0-9][0-9]
 parsed.json
 parsed[0-9].json
 data1.json
+LLM_outputs_2
+LLM_outputs_2.zip
+human
+minisubset02-annotated.zip
+minisubset04_annotated.zip
