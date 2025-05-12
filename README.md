@@ -1,7 +1,7 @@
 # Annotation tool setup and it's usage
 
-For the purpose of clarity, we decided to split the setup and usage into two different .md files. 
-Please navigate to the manual you desire.
+For clarity, we have decided to split the setup and usage instructions into two separate `.md` files.  
+Please navigate to the desired manual:
 
-1) Setup - Manuals/INSTALLATION.md
-2) Annotation procedure - Manuals/ANNOTATION-PROCEDURE.md
+1. **Setup** – `Manuals/INSTALLATION.md`  
+2. **Annotation Procedure** – `Manuals/ANNOTATION-PROCEDURE.md`
