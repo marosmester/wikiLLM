@@ -122,6 +122,8 @@ Some example models that can be downloaded are also listed on [github.com/ollama
 
 To extract birtday year, you can use this function from `utils.py`:
 ```python
+from dateutil import parser
+
 def extract_year(date_str: str) -> int | None:
     try:
         dt = parser.parse(date_str, fuzzy=True)
