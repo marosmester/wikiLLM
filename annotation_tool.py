@@ -13,7 +13,7 @@ import json
 import platform
 from pathlib import Path
 #from regex.helper_functions import find_birth_year
-#from parser_folder import parser as psr
+import parser as psr
 import time
 import sys
 import re
@@ -58,7 +58,6 @@ def multiProcessWeb(link):
     """
     
     web = webview.create_window("Wikipedia", link, on_top=True, x=-10, y=-2, width=650, height=840)
-    print("start wiki")
     webview.start(gui='gtk')
     
 def imread_unicode(path, flags=cv2.IMREAD_COLOR):
@@ -168,10 +167,10 @@ class AnnotationTool(tb.Window):
         #--------------------------------------------------------------------------------------------
         
         # Class attributes initialization
-        self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'nextRecord.png')
-        self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='previousRecord.png')
-        self.IMAGE_SAVE = ImageTk.PhotoImage(file='diskette.png')
-        self.IMAGE_SKIP = ImageTk.PhotoImage(file='fast-forward.png')
+        self.IMAGE_NEXT = ImageTk.PhotoImage(file = 'graphics/nextRecord.png')
+        self.IMAGE_PREVIOUS = ImageTk.PhotoImage(file='graphics/previousRecord.png')
+        self.IMAGE_SAVE = ImageTk.PhotoImage(file='graphics/diskette.png')
+        self.IMAGE_SKIP = ImageTk.PhotoImage(file='graphics/fast-forward.png')
         self.image = None
         self.caption = None
         self.name = None
@@ -317,7 +316,6 @@ class AnnotationTool(tb.Window):
 
         #Reorder the data
         self.catRelatedImages()
-        print(f"self.data length = { len(self.data)}")
 
         #Fill already annotated images into self.data_from_annotation
         self.loadAlreadyAnnotated()
@@ -435,7 +433,7 @@ class AnnotationTool(tb.Window):
                     pos_outside_brackets = ind
                     break
 
-            if (pos_outside_brackets != None) and (pos_outside_brackets < len(self.caption)//2) and (pos_outside_brackets+1) < len(self.caption):
+            if pos_outside_brackets != None and (pos_outside_brackets+1) < len(self.caption):
                 self.caption = self.caption[pos_outside_brackets+1:]
 
         self.texts["Caption"].config(state="normal")
@@ -443,7 +441,7 @@ class AnnotationTool(tb.Window):
         self.texts["Caption"].insert("1.0", self.caption)
         self.texts["Caption"].config(state="disabled")
     
-    def createBracketPairs(self) -> list:
+    def createBracketPairs(self):
         """
         Parses the caption and returns all [] bracket pair indeces as 2-tuples in a list
         """
@@ -1605,7 +1603,7 @@ if __name__ == "__main__":
     else:
         if "data_json=" in std_args_split:
             index = std_args_split.index("data_json=")
-            parsed_data_filename = "./" + std_args_split[index+1]+".json"
+            parsed_data_filename = std_args_split[index+1]+".json"
         else:
             parsed_data_filename = "./data1.json"     #TODO: Name of the json file containing the parser's output
                                                       #Change it if you are not running the anotaion tool from command line
@@ -1633,12 +1631,11 @@ if __name__ == "__main__":
             sys.exit(1)
     else:
         web_mode = "pywebview"   #TODO: Change it if you are not running the anotaion tool from command line and you want to use webbrowser
-     
-    try:
-        app = AnnotationTool(parsed_data_json= parsed_data_filename, themename=theme, web_mode=web_mode)
-    except:
-        print("[ERROR] Wrong name of the pre-parsed data file!")
-        sys.exit(1)
+
+    app = AnnotationTool(parsed_data_json= parsed_data_filename, themename=theme, web_mode=web_mode)
+    print(parsed_data_filename, theme, web_mode)
+    print("[ERROR] Wrong name of the pre-parsed data file!")
+    sys.exit(1)
         
     print("App is running")
     app.mainloop()
