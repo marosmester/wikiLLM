@@ -1,0 +1,122 @@
+[
+    {
+        "timestamp": "2025-05-13,15:53:32",
+        "model": "llama3-3-70B",
+        "model_load_time": 310.17663943592925,
+        "model_GPU_usage_GB": {
+            "GPU_0": 0.0009765625,
+            "GPU_1": 43.1259765625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 3.5399,
+            "prompt_1": 3.4546,
+            "prompt_2": 3.5104,
+            "prompt_3": 3.4702,
+            "prompt_4": 3.4168,
+            "prompt_5": 3.4078
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 125.22099512303248,
+        "total_time": 435.3976334769977
+    },
+    {
+        "timestamp": "2025-05-13,16:03:30",
+        "model": "deepseek-r1-llama-70B",
+        "model_load_time": 470.2293366040103,
+        "model_GPU_usage_GB": {
+            "GPU_0": 0.0009765625,
+            "GPU_1": 43.0791015625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 3.6829,
+            "prompt_1": 3.6429,
+            "prompt_2": 3.6146,
+            "prompt_3": 3.4644,
+            "prompt_4": 3.4803,
+            "prompt_5": 3.4888
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 128.32348037406337,
+        "total_time": 598.5528165180003
+    },
+    {
+        "timestamp": "2025-05-13,16:31:29",
+        "model": "deepseek-r1-qwen-32B",
+        "model_load_time": 162.04575560602825,
+        "model_GPU_usage_GB": {
+            "GPU_0": 21.2119140625,
+            "GPU_1": 0.0009765625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 2.7634,
+            "prompt_1": 2.7223,
+            "prompt_2": 2.6854,
+            "prompt_3": 2.7005,
+            "prompt_4": 2.7279,
+            "prompt_5": 2.6467
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 97.76326046593022,
+        "total_time": 259.80901498999447
+    },
+    {
+        "timestamp": "2025-05-13,16:37:58",
+        "model": "deepseek-r1-qwen-14B",
+        "model_load_time": 56.84696357999928,
+        "model_GPU_usage_GB": {
+            "GPU_0": 10.5888671875,
+            "GPU_1": 0.0009765625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 1.5017,
+            "prompt_1": 1.3149,
+            "prompt_2": 1.3437,
+            "prompt_3": 1.3008,
+            "prompt_4": 1.3005,
+            "prompt_5": 1.3139
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 48.723653855966404,
+        "total_time": 105.57061633397825
+    },
+    {
+        "timestamp": "2025-05-13,16:41:17",
+        "model": "deepseek-r1-llama-8B",
+        "model_load_time": 35.290866881026886,
+        "model_GPU_usage_GB": {
+            "GPU_0": 6.2939453125,
+            "GPU_1": 0.0009765625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 0.767,
+            "prompt_1": 0.6793,
+            "prompt_2": 0.6874,
+            "prompt_3": 0.6433,
+            "prompt_4": 0.632,
+            "prompt_5": 0.6837
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 24.816348074004054,
+        "total_time": 60.107213582028635
+    },
+    {
+        "timestamp": "2025-05-13,16:44:33",
+        "model": "deepseek-r1-qwen-7B",
+        "model_load_time": 33.3158821699908,
+        "model_GPU_usage_GB": {
+            "GPU_0": 5.4365234375,
+            "GPU_1": 0.0009765625
+        },
+        "mean_annotation_time_sec_per_image": {
+            "prompt_0": 1.0405,
+            "prompt_1": 0.929,
+            "prompt_2": 0.8834,
+            "prompt_3": 0.899,
+            "prompt_4": 0.9306,
+            "prompt_5": 0.8286
+        },
+        "number_of_annotations": 36,
+        "total_annotation_time": 33.34177422791254,
+        "total_time": 66.65765502490103
+    }
+]

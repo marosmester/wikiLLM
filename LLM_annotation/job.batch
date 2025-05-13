@@ -1,0 +1,27 @@
+#!/bin/bash
+
+#SBATCH --job-name=annot 
+
+#SBATCH --mail-type=ALL 
+
+#SBATCH --mail-user=<mail>
+
+#SBATCH --output=ollama_out.log 
+
+#SBATCH --error=ollama_err.log 
+
+#SBATCH --partition=<partition>
+
+#SBATCH --cpus-per-task=1
+
+#SBATCH --gres=gpu:1
+
+cd ~/<your_folder>/
+
+source ~/anaconda3/etc/profile.d/conda.sh
+
+conda activate ollama_env
+
+export SSL_CERT_FILE=$(python -c "import certifi; print(certifi.where())")
+
+python3 ollama_annotate.py
