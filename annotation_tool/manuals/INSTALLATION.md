@@ -9,7 +9,7 @@ The most straightforward way is to utilize our preconfigured conda environment.
 4) Open the Anaconda PowerShell Prompt and navigate to the folder where you cloned the repository.
 5) Run this command:<br/>
    ```
-   conda env create -f environment_win.yml
+   conda env create -f annotation_tool_win.yml
    ```
 6) Activate the environment you created by running this command: <br/>
     ```
